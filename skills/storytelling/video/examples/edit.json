@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "title": "A measured experiment",
+  "output": {"width": 1920, "height": 1080, "fps": 30, "fit": "contain"},
+  "clips": [
+    {"source": "../media/demo.mp4", "in": 2.0, "out": 8.0,
+     "reason": "Show the observed result before explaining the method"}
+  ],
+  "captions": [
+    {"clip": 0, "start": 2.5, "end": 5.0,
+     "zh": "【编辑注】请替换为经过核对的内容",
+     "en": "[Editor's note] Replace with verified content"}
+  ]
+}

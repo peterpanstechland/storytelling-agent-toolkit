@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "title": "让一次调试，变成一个看得懂的故事",
+  "author": "示例创作者",
+  "audience": "第一次接触创客项目的读者",
+  "goal": "示范如何从问题、尝试和结果组织内容；这不是一次真实活动报道",
+  "body_markdown": "这是虚构的排版演示，不含真实实验数据。\n\n## 先看问题\nLED 没有亮。故事从这个看得见的问题开始。\n\n## 再看尝试\n用近景展示接线，用一张图解释信号路径。\n\n## 最后看证据\n真实制作时，只有检查过的结果才能写成结论。",
+  "platforms": ["wechat-article", "xiaohongshu", "csdn", "aws-builder-center", "x", "wechat-channels", "xiaohongshu-video", "douyin", "bilibili", "youtube"],
+  "sources": [{"id": "demo", "note": "Fictional example authored for this toolkit; no real experiment or performance claim."}],
+  "claims": [{"id": "scene", "text": "示例中的 LED 没有亮", "kind": "illustration", "source_ids": ["demo"]}],
+  "assets": [],
+  "variants": {
+    "wechat-article": {"title": "一次调试，怎么讲得让人看懂？", "summary": "从一个看得见的问题开始，给每个画面一个解释任务。", "body_markdown": "这是虚构演示。\n\n## 一个问题\nLED 没亮，是故事的入口。\n\n## 一条证据线\n先给接线近景，再解释检查过程，最后展示能验证结论的画面。\n\n你遇到过最难讲清楚的一次调试是什么？"},
+    "x": {"title": "A debugging story", "posts": ["A fictional storytelling demo: start with the visible problem—a dark LED.", "Show the attempt with a close-up and an annotated signal path. Finish with verified evidence, not a claim the footage cannot support."], "body_markdown": "A fictional example of problem → attempt → evidence."},
+    "youtube": {"title": "How to tell a debugging story", "description": "Fictional editorial demo. Real footage, narration, music and captions must be supplied before publication.", "tags": ["storytelling", "maker"]}
+  }
+}

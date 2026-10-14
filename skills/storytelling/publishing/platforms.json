@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-14",
+  "default_mode": "local_preview",
+  "policy": {
+    "publish_authorization": "Use existing explicit human authorization for the named account and final artifact; drafting or upload permission alone is insufficient.",
+    "constraints": "Read current platform editor/API rules at execution time. No universal hard-coded title, file-size, image-count or duration limits.",
+    "receipt_states": [
+      "local_preview",
+      "uploaded",
+      "draft",
+      "submitted",
+      "processing",
+      "published",
+      "rejected",
+      "unknown"
+    ],
+    "unknown_outcome": "Inspect remote content/status before retrying. Never assume a timeout means no post was created."
+  },
+  "platforms": [
+    {
+      "id": "wechat-official-account",
+      "formats": [
+        "illustrated-article"
+      ],
+      "implementation": "runnable-python-adapter",
+      "entrypoint": "wechat.py",
+      "operations": [
+        "preview",
+        "upload-body",
+        "upload-cover",
+        "draft",
+        "get-draft",
+        "publish",
+        "status"
+      ],
+      "editor_url": "https://mp.weixin.qq.com/",
+      "inputs": [
+        "article.json",
+        "inline-styled HTML",
+        "body images",
+        "cover image"
+      ],
+      "authentication": "WECHAT_APP_ID and WECHAT_APP_SECRET in runtime environment; account API permissions and IP allowlist as required by WeChat",
+      "not_implemented": [
+        "mass send",
+        "scheduling",
+        "originality declaration",
+        "video upload",
+        "automatic login",
+        "article update/delete"
+      ],
+      "references": [
+        "https://developers.weixin.qq.com/doc/subscription/api/draftbox/draftmanage/api_draft_add",
+        "https://developers.weixin.qq.com/doc/subscription/api/public/api_freepublish_submit",
+        "https://developers.weixin.qq.com/doc/subscription/api/public/api_freepublish_get"
+      ],
+      "bundle_ids": [
+        "wechat-article"
+      ]
+    },
+    {
+      "id": "xiaohongshu",
+      "formats": [
+        "image-carousel",
+        "video"
+      ],
+      "implementation": "editor-handoff",
+      "editor_url": "https://creator.xiaohongshu.com/",
+      "inputs": [
+        "ordered images or MP4",
+        "title",
+        "caption",
+        "topics",
+        "cover"
+      ],
+      "flow": [
+        "Select the correct creator account",
+        "Choose image or video publishing",
+        "Upload files in manifest order",
+        "Set cover, title, caption and relevant topics",
+        "Inspect every card or playback and current editor validation",
+        "Publish only within user authorization; capture note ID and state"
+      ],
+      "references": [
+        "https://creator.xiaohongshu.com/"
+      ],
+      "bundle_ids": [
+        "xiaohongshu",
+        "xiaohongshu-video"
+      ]
+    },
+    {
+      "id": "csdn",
+      "formats": [
+        "illustrated-article"
+      ],
+      "implementation": "editor-handoff",
+      "editor_url": "https://mp.csdn.net/",
+      "inputs": [
+        "article.md",
+        "images",
+        "title",
+        "summary",
+        "cover",
+        "tags"
+      ],
+      "flow": [
+        "Open Write Article in creator center",
+        "Choose Markdown or rich text editor",
+        "Insert article and upload local illustrations",
+        "Check rendered code blocks, links and image captions",
+        "Set source/originality and category from actual rights and content",
+        "Save draft or publish as authorized; capture article URL and moderation state"
+      ],
+      "references": [
+        "https://mp.csdn.net/",
+        "https://ask.csdn.net/questions/7916874"
+      ],
+      "bundle_ids": [
+        "csdn"
+      ]
+    },
+    {
+      "id": "aws-builder-center",
+      "formats": [
+        "illustrated-article"
+      ],
+      "implementation": "editor-handoff",
+      "editor_url": "https://builder.aws.com/",
+      "inputs": [
+        "article",
+        "title",
+        "summary",
+        "images with alt text",
+        "tags"
+      ],
+      "flow": [
+        "Sign in with the intended AWS Builder ID",
+        "Use + then Create article",
+        "Populate required fields and illustrations",
+        "Preview rendering, examples and attribution",
+        "Save draft or publish as authorized",
+        "Wait for moderation and capture Manage Content state and article URL"
+      ],
+      "references": [
+        "https://builder.aws.com/faq"
+      ],
+      "bundle_ids": [
+        "aws-builder-center"
+      ]
+    },
+    {
+      "id": "x",
+      "formats": [
+        "post",
+        "thread",
+        "image-post",
+        "video"
+      ],
+      "implementation": "editor-handoff-or-external-official-api",
+      "editor_url": "https://x.com/compose/post",
+      "inputs": [
+        "post or ordered thread text",
+        "media",
+        "alt text"
+      ],
+      "flow": [
+        "Verify intended account and current account media/text capabilities",
+        "Use browser composer or configured official API connector",
+        "Upload and finish media processing before creating posts",
+        "Inspect text, link previews and image alt text",
+        "Create root post only when authorized then reply in order using returned IDs",
+        "Record each post ID; resume a partial thread without duplicating the root"
+      ],
+      "external_api": {
+        "create_post": "POST https://api.x.com/2/tweets",
+        "auth": "User-context OAuth; posting permissions and developer access required"
+      },
+      "references": [
+        "https://docs.x.com/x-api/posts/create-post",
+        "https://docs.x.com/x-api/media/introduction"
+      ],
+      "bundle_ids": [
+        "x"
+      ]
+    },
+    {
+      "id": "wechat-channels",
+      "formats": [
+        "video"
+      ],
+      "implementation": "editor-handoff",
+      "editor_url": "https://channels.weixin.qq.com/",
+      "inputs": [
+        "MP4",
+        "cover",
+        "description",
+        "topics"
+      ],
+      "flow": [
+        "Use Video Channels Assistant and the intended channel login",
+        "Upload video and wait for processing",
+        "Set cover, description and available topic fields",
+        "Play opening, middle and end; inspect crop and audio",
+        "Apply originality or synthetic-content declarations only when applicable",
+        "Publish or save as authorized and capture channel content ID/status"
+      ],
+      "references": [
+        "https://channels.weixin.qq.com/"
+      ],
+      "bundle_ids": [
+        "wechat-channels"
+      ]
+    },
+    {
+      "id": "douyin",
+      "formats": [
+        "video"
+      ],
+      "implementation": "editor-handoff-or-external-approved-api",
+      "editor_url": "https://creator.douyin.com/",
+      "inputs": [
+        "MP4",
+        "cover",
+        "title/description",
+        "topics"
+      ],
+      "flow": [
+        "Select intended account in creator center",
+        "Upload video and wait for processing",
+        "Set cover, text and relevant topics",
+        "Check safe areas, audio, current restrictions and declarations",
+        "Publish or save as authorized",
+        "Record moderation state and content identifier"
+      ],
+      "external_api": {
+        "note": "Official video.create requires approved application scope and user authorization. No Douyin API uploader is bundled."
+      },
+      "references": [
+        "https://creator.douyin.com/",
+        "https://open.douyin.com/platform/resource/docs/openapi/video-management/douyin/create/create-video"
+      ],
+      "bundle_ids": [
+        "douyin"
+      ]
+    },
+    {
+      "id": "bilibili",
+      "formats": [
+        "video"
+      ],
+      "implementation": "editor-handoff",
+      "editor_url": "https://member.bilibili.com/",
+      "inputs": [
+        "MP4",
+        "cover",
+        "title",
+        "description",
+        "tags",
+        "subtitles if supported"
+      ],
+      "flow": [
+        "Open creator center and Upload Video",
+        "Upload final MP4 and wait for processing",
+        "Set title, cover, category, tags and source/original status accurately",
+        "Preview playback and subtitle timing",
+        "Submit only as authorized",
+        "Capture draft/submission ID, moderation state and final BV/URL when available"
+      ],
+      "references": [
+        "https://member.bilibili.com/",
+        "https://www.bilibili.com/h5/customer-service/home"
+      ],
+      "bundle_ids": [
+        "bilibili"
+      ]
+    },
+    {
+      "id": "youtube",
+      "formats": [
+        "video"
+      ],
+      "implementation": "editor-handoff-or-external-official-api",
+      "editor_url": "https://studio.youtube.com/",
+      "inputs": [
+        "MP4",
+        "thumbnail",
+        "title",
+        "description",
+        "chapters",
+        "subtitles"
+      ],
+      "flow": [
+        "Select intended channel in Studio or OAuth connector",
+        "Upload with visibility explicitly set to private unless public publication is already authorized",
+        "Set metadata, thumbnail, language and captions",
+        "Answer audience, altered/synthetic content and other declarations truthfully",
+        "Wait for processing and platform checks",
+        "Set authorized visibility/schedule and capture video ID, URL and actual privacy state"
+      ],
+      "external_api": {
+        "upload": "POST https://www.googleapis.com/upload/youtube/v3/videos",
+        "auth": "User OAuth with an appropriate YouTube upload scope",
+        "note": "No YouTube API uploader is bundled. Explicitly set status.privacyStatus; verify current quota, audit and account restrictions."
+      },
+      "references": [
+        "https://developers.google.com/youtube/v3/docs/videos/insert",
+        "https://support.google.com/youtube/answer/57407"
+      ],
+      "bundle_ids": [
+        "youtube"
+      ]
+    }
+  ]
+}

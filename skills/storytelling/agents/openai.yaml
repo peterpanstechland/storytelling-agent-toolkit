@@ -1,0 +1,4 @@
+interface:
+  display_name: "Storytelling Studio"
+  short_description: "Create illustrated stories, videos and platform publishing packs"
+  default_prompt: "Use $storytelling to turn my source material into a finished story and prepare the requested platform edition."

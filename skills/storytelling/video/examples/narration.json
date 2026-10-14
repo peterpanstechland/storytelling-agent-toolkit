@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "duration": 6.0,
+  "backend": {"engine": "user-selected-provider", "provenance_file": "voice-provenance.json"},
+  "segments": [
+    {"id": "opening", "source": "../media/voice-001.wav", "start": 0.5,
+     "text": "请替换为实际录制或生成并核对的旁白。",
+     "en": "Replace with narration actually recorded or generated and verified."}
+  ]
+}

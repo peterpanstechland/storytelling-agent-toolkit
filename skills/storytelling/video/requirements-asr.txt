@@ -1,0 +1,2 @@
+# Optional: local transcription. No model or voice-cloning engine is included.
+faster-whisper>=1.0,<2

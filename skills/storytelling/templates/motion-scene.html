@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Storytelling · deterministic motion template</title>
+<style>html,body{margin:0;background:#090a13;overflow:hidden}canvas{display:block;width:100vw;height:100vh}</style>
+<canvas id="scene" aria-label="Illustrative data-to-insight animation"></canvas>
+<script>
+// Author-supplied labels. No measured dataset or reconstruction is implied.
+window.storyConfig={title:'让线索，连接成故事',subtitle:'概念动效示意',keywords:['观察','关联','理解'],accent:'#af85ff',secondary:'#56dfff',duration:6};
+const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
+const clamp=v=>Math.max(0,Math.min(1,v)),smooth=v=>{v=clamp(v);return v*v*(3-2*v)};
+const rand=i=>{const a=Math.sin(i*127.1+311.7)*43758.5453;return a-Math.floor(a)};
+window.renderFrame=async function(seconds){
+ const cfg=window.storyConfig,w=innerWidth,h=innerHeight;
+ canvas.width=w;canvas.height=h;
+ const t=Math.max(0,Math.min(seconds,cfg.duration)),p=t/cfg.duration;
+ ctx.fillStyle='#090a13';ctx.fillRect(0,0,w,h);
+ const glow=ctx.createRadialGradient(w*.55,h*.52,0,w*.55,h*.52,w*.7);
+ glow.addColorStop(0,'#22153f');glow.addColorStop(1,'#090a13');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
+ ctx.save();ctx.strokeStyle='#443258';ctx.lineWidth=1;
+ const horizon=h*.62;
+ for(let i=-10;i<=10;i++){ctx.beginPath();ctx.moveTo(w/2+i*12,horizon);ctx.lineTo(w/2+i*w*.17,h);ctx.stroke()}
+ for(let i=0;i<12;i++){const z=(i+p*.6)%12/12,y=horizon+(h-horizon)*z*z;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
+ ctx.restore();
+ const gather=smooth((p-.18)/.48),cx=w*.5,cy=h*.52;
+ for(let i=0;i<150;i++){
+  const ang=rand(i)*Math.PI*2+p*.8,r0=w*(.13+rand(i+400)*.65),r1=w*(.09+rand(i+800)*.08);
+  const r=r0*(1-gather)+r1*gather;
+  const x=cx+Math.cos(ang)*r,y=cy+Math.sin(ang)*r*.38;
+  ctx.fillStyle=i%3?cfg.accent:cfg.secondary;ctx.globalAlpha=.15+.6*rand(i+10);ctx.beginPath();ctx.arc(x,y,1+rand(i+90)*3,0,Math.PI*2);ctx.fill();
+ }
+ ctx.globalAlpha=1;
+ for(let i=0;i<3;i++){
+  const enter=smooth((p-(.07+i*.17))/.11);if(!enter)continue;
+  const x=w*(.23+i*.27),y=h*.51;
+  ctx.globalAlpha=enter;ctx.strokeStyle=i%2?cfg.secondary:cfg.accent;ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(x,y,w*.064,0,Math.PI*2);ctx.stroke();
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';ctx.font=`600 ${Math.round(w*.026)}px system-ui,sans-serif`;ctx.fillText(cfg.keywords[i]??'',x,y);
+  if(i<2){ctx.beginPath();ctx.moveTo(x+w*.074,y);ctx.lineTo(x+w*.19*enter,y);ctx.stroke()}
+ }
+ ctx.globalAlpha=smooth((p-.04)/.12);ctx.textAlign='center';ctx.fillStyle='#f6f3ff';ctx.font=`700 ${Math.round(w*.049)}px system-ui,sans-serif`;ctx.fillText(cfg.title,w*.5,h*.25);
+ ctx.globalAlpha=.65;ctx.font=`${Math.round(w*.018)}px system-ui,sans-serif`;ctx.fillStyle='#c5bdd5';ctx.fillText(cfg.subtitle,w*.5,h*.76);ctx.globalAlpha=1;
+};
+window.renderFrame(0);
+</script></html>

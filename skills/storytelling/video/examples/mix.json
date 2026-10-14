@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "video": "../outputs/visual/master.mp4",
+  "narration": {"source": "../outputs/voice/narration.wav", "gain_db": 0},
+  "original": {"policy": "preserve", "gain_db": -9},
+  "music": {
+    "source": "../media/authorized-music.wav", "gain_db": -20, "loop": true,
+    "fade_in": 0.6, "fade_out": 1.5,
+    "ducking": {"enabled": true, "threshold_db": -32, "ratio": 8, "attack_ms": 15, "release_ms": 400}
+  },
+  "subtitles": {"zh": "../outputs/voice/zh.srt", "en": "../outputs/voice/en.srt"}
+}

@@ -1,0 +1,119 @@
+# Storytelling Agent Toolkit
+
+**把真实素材变成有故事、有信息、有画面的内容，再交付到合适的平台。**
+
+由「彼得潘的科技谷」的图文与视频制作实践整理。面向 AI Agent 的可移植 skill，加上能实际运行的图文、剪辑、声音装配和公众号工具。它保留创作方法与工程工具，**不包含活动素材、人物照片、声音样本、成片、品牌 Logo、模型或账号凭据**。
+
+[Agent 入口：SKILL.md](skills/storytelling/SKILL.md) · [English](docs/README.en.md) · [MIT License](LICENSE)
+
+## 能做什么
+
+- **叙事与文案**：从素材提炼问题、证据和转折；面向第一次了解主题的读者；技术科普、活动报道、项目故事、推广内容和平台版本。
+- **图文与视觉**：照片叠加解释、数据图、长图切片、GIF、封面和轮播卡片。内置五种卡片版式，实际检查字体、换行和溢出。
+- **视频**：素材索引、可选 ASR、FFmpeg 剪辑、中英字幕、旁白时间线装配、现场声音保留、配乐 ducking，以及局部修改后的版本检查。
+- **电影语言**：甩镜、突切、急推、节奏剪辑、对称构图、拖影、虚拟摄影机；八类片头、动态文字、VFX、LUT 与音画配合的制作指南。
+- **程序化动效**：可复用 Canvas 动效模板；确定性网页逐帧渲染，可接 Three.js／SVG／GSAP 场景，导出 MP4 或 GIF。
+- **发布助手**：把一个故事改编成不同平台的文案、媒体顺序和发布包；公众号提供实际 API 适配器，其他平台提供官方编辑器／连接器工作流。
+
+发布目标包括微信公众号、小红书图文、CSDN、AWS Builder Center、X，以及微信视频号、小红书视频、抖音、B站和 YouTube。
+
+这里的“支持平台”不是“内置了所有平台自动发文 API”。公众号支持上传、草稿与发布状态；其他平台需要 Agent 已连接的浏览器或官方连接器。**声音克隆也由选择的 TTS 提供方执行，工具包负责制作流程、音频装配与验证，不附带克隆模型。**
+
+## 给 AI Agent 使用
+
+不依赖特定品牌的 Agent。把以下任务交给具备文件和命令工具的 Agent 即可：
+
+> 阅读 `skills/storytelling/SKILL.md`。根据我的素材制作一篇面向新读者的图文，以及一条两分钟的视频。先完成可预览版本，保留来源与素材身份记录；只准备我指定平台的发布包。
+
+也可以把自包含的 `skills/storytelling/` 目录安装到你的 Agent 支持的 skills 目录。例如 Codex：
+
+```bash
+git clone https://github.com/peterpanstechland/storytelling-agent-toolkit.git
+cd storytelling-agent-toolkit
+python3 scripts/install_skill.py --target ~/.codex/skills
+```
+
+安装器只复制本 skill，不修改全局模型、账号或其他 skill；目标已存在时停止。其他 Agent 选择其文档规定的目录，或直接读取这个 `SKILL.md`。`agents/openai.yaml` 是可选 UI 元数据，不是运行依赖。
+
+## 五分钟本地试跑
+
+基础工具使用 Python 3.10+。图卡需要 Pillow 和系统中文字体；视频需要 FFmpeg/FFprobe。模型和网页浏览器都是可选依赖。
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install Pillow
+
+# 1. 纯文字虚构示例：不读取你的素材、不连接账号
+python skills/storytelling/scripts/story.py init /tmp/my-story --demo
+python skills/storytelling/scripts/story.py validate /tmp/my-story/brief.json
+python skills/storytelling/scripts/story.py pack /tmp/my-story/brief.json --output /tmp/my-story/release-v1
+
+# 2. 真正生成图卡 PNG、HTML 预览和清单
+python skills/storytelling/scripts/render_cards.py skills/storytelling/examples/cards.json --output /tmp/my-story/cards-v1
+
+# 3. 检查哪些视频能力在本机可用
+python skills/storytelling/video/run doctor
+```
+
+示例中没有真实实验指标。将实际素材放在独立项目目录，填写 `brief.json` 的来源、画面身份和平台版本；通过 `asset_ids` 选择所需素材，`pack --copy-assets` 才会把选中的文件复制进**本地**发布包。它不执行网络上传。
+
+未安装中文字体时，图卡工具会给出明确错误；可用 `--font` 指定有相应字形的字体。Linux 常用 Noto Sans CJK，字体不随仓库分发。
+
+## 视频和声音
+
+```bash
+python skills/storytelling/video/run inspect /path/to/media --out /path/to/work/index-v1
+python skills/storytelling/video/run render /path/to/edit.json --out /path/to/outputs/video-v1
+python skills/storytelling/video/run narrate /path/to/narration.json --out /path/to/outputs/voice-v1
+python skills/storytelling/video/run mix /path/to/mix.json --out /path/to/outputs/mix-v1
+```
+
+计划示例在 [video/examples](skills/storytelling/video/examples)。这些契约需要替换为自己的素材路径；不是附带成片的演示。`narrate` 装配录音或 TTS 已生成的声音，`mix` 保留画面流并混入旁白、现场声与音乐。字幕的源素材时钟与成片时钟分别说明，避免移镜头后字幕错位。
+
+[完整视频指南](skills/storytelling/references/video-production.md) · [电影语言与 VFX](skills/storytelling/references/cinematic-language.md)
+
+## 网页动效、长图和 GIF
+
+```bash
+npm install
+npx playwright install chromium
+node skills/storytelling/scripts/capture_web.mjs \
+  --input skills/storytelling/templates/motion-scene.html \
+  --output /tmp/my-story/motion-v1 --mode video \
+  --width 1280 --height 720 --seconds 6 --fps 24
+```
+
+网页提供 `window.renderFrame(seconds)`，便能按时间确定性导出。`--mode still` 导出完整长图，`slices` 导出有序切片，`gif` 导出无声 GIF。脚本只打开本地素材页，阻止联网资源，不接管登录中的浏览器。内置模板是概念动效，不是实测数据、人物跟踪或 3DGS 重建。
+
+[网页渲染说明](skills/storytelling/references/web-capture.md)
+
+## 发布与账号
+
+公众号工具默认只预览，远程操作必须明确选择：
+
+```bash
+python skills/storytelling/publishing/wechat.py --help
+python skills/storytelling/publishing/wechat.py preview /path/to/article.json --preview-out /tmp/article-preview.html
+# 配置好私有运行环境中的 WECHAT_APP_ID / WECHAT_APP_SECRET 后：
+python skills/storytelling/publishing/wechat.py draft /path/to/article.json --execute
+# 仅在用户已经授权该草稿公开发布时：
+python skills/storytelling/publishing/wechat.py publish DRAFT_MEDIA_ID --execute --authorized
+```
+
+正式执行前需要上传封面及正文图片，并把返回的 ID／URL 填入正文；完整流程见[发布指南](skills/storytelling/references/publishing.md)。回执按账号和内容去重，未知结果先核对，不盲目重发。保存草稿、提交审核、公开可访问和群发不是同一状态。
+
+其他平台的入口、所需素材和实际支持范围见 [platforms.json](skills/storytelling/publishing/platforms.json)。不在代码中固化会变化的标题长度、图片数量、时长或 API 额度。
+
+## 验证与贡献
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
+python3 scripts/check_release.py
+# Git 仓库中确认最终将提交的内容：
+python3 scripts/check_release.py --tracked
+```
+
+测试覆盖图卡溢出、身份与数据引用、真实 FFmpeg 画面和音频边界、混音、公众号模拟 API、重复提交、发布状态和代码包检查。测试只使用临时合成素材或模拟传输，不发布到真实账号。自动测试不能取代最终画面和声音审看。
+
+贡献新平台时写清楚它是实际适配器还是编辑器交接流程，并附测试与官方来源。贡献新特效时提供确定性时间接口和真实可导出的短样例。不要提交私人项目目录、账号文件、素材、声音或模型。

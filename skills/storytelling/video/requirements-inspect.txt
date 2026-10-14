@@ -1,0 +1,2 @@
+# Optional: contact sheets only. Rendering and audio assembly use Python stdlib.
+Pillow>=10,<13
