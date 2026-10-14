@@ -2,7 +2,7 @@
 
 Use code-native canvas/SVG/HTML for exact diagrams, layout and motion. Use image generation for illustration, textures or scene changes when useful; inspect an existing image before editing it. Use the host's available image tool, keep the prompt and selected output, and do not pretend an optional external provider is configured.
 
-`capture_web.mjs` uses an isolated headless Playwright browser for local artwork. It does not touch a logged-in browser or creator account. Dependencies are optional: Node.js, Playwright/Chromium, and FFmpeg for moving exports. Install in the toolkit checkout with `npm install`, then `npx playwright install chromium`, or supply `--browser` for an existing executable. The script blocks network resources; use local fonts, images and libraries.
+`capture_web.mjs` uses an isolated headless Playwright browser for local artwork. It does not touch a logged-in browser or creator account. Dependencies are optional: Node.js, Playwright/Chromium, and FFmpeg for moving exports. In a full repository checkout run `npm install`; in a standalone skill folder run `npm install --no-save playwright`. Then run `npx playwright install chromium`, or supply `--browser` for an existing Chromium executable. The `--browser` option replaces only the browser download; the Playwright package is still required. The script blocks network resources; use local fonts, images and libraries.
 
 ## Static article and long-image slices
 
