@@ -8,23 +8,30 @@ import sys
 COMMANDS = {
     "doctor": "doctor.py", "inspect": "inspect_media.py", "transcribe": "transcribe.py",
     "render": "render.py", "narrate": "narration.py", "mix": "narration.py",
+    "autocut": "autocut",  # project-based auto-edit package (autocut/vcut); extra dependencies
 }
 
 
 def main():
     command = sys.argv[1] if len(sys.argv) > 1 else "doctor"
     if command in ("--help", "-h"):
-        print("Usage: python video/run {doctor|inspect|transcribe|render|narrate|mix} [arguments]")
+        print("Usage: python video/run {doctor|inspect|transcribe|render|narrate|mix|autocut} [arguments]")
         return 0
     if command not in COMMANDS:
         print("Unknown command. Use --help for supported commands.", file=sys.stderr)
         return 2
     python = os.environ.get("STORYTELLING_PYTHON") or sys.executable
+    env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", HF_HUB_DISABLE_TELEMETRY="1")
+    if command == "autocut":
+        # `python -m vcut` with the self-contained package folder on the path; no installation step.
+        package_root = Path(__file__).resolve().parent / "autocut"
+        env["PYTHONPATH"] = str(package_root) + os.pathsep + env.get("PYTHONPATH", "")
+        env.setdefault("VCUT_TOOLKIT_VIDEO", str(package_root.parent))
+        return subprocess.call([python, "-m", "vcut"] + sys.argv[2:], env=env)
     script = Path(__file__).resolve().parent / "scripts" / COMMANDS[command]
     args = [python, str(script)]
     if command in ("narrate", "mix"):
         args.append(command)
-    env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", HF_HUB_DISABLE_TELEMETRY="1")
     return subprocess.call(args + sys.argv[2:], env=env)
 
 
