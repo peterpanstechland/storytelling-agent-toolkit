@@ -38,6 +38,9 @@ python3 video/run mix ./work/mix-v001.json --out ./outputs/mixed-v001
 - Examples under `video/examples/` contain placeholder paths and are contracts,
   not runnable demonstrations without the user's media.
 
+For many clips from several devices (shot list, missing-shot reminders, styled rough cut, camera moves/effects, 360, 剪映 draft) use the project-based
+[auto edit](auto-edit.md) workflow; it can import this guide's inspect index, transcripts and narration, and export an `edit.json` back (lossy).
+
 ## Inspect before choosing shots
 
 Index sources, open contact sheets, then inspect candidate moments densely and

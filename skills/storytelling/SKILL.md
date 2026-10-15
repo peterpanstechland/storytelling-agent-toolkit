@@ -1,6 +1,6 @@
 ---
 name: storytelling
-description: Turn source material into evidence-grounded illustrated articles, social posts, image carousels and narrated videos, then prepare or publish the requested platform edition. Use for end-to-end storytelling and revisions, including footage editing, graphics, narration and creator-platform handoff.
+description: Turn source material into evidence-grounded illustrated articles, social posts, image carousels and narrated videos, then prepare or publish the requested platform edition. Use for end-to-end storytelling and revisions, including footage editing, project-based auto-editing of multi-device footage (shot lists, gap reminders, styled rough cuts, 360 camera moves, Jianying drafts), graphics, narration and creator-platform handoff.
 ---
 
 # Storytelling
@@ -17,6 +17,7 @@ Read only the relevant route:
 - Illustrated prose, overlays, long images, GIFs and carousels: [visual editorial](references/visual-editorial.md).
 - Adapt one story for different audiences/channels: [adaptation](references/adaptation.md).
 - Footage, narration, authorized voice cloning, subtitles and audio: [video production](references/video-production.md).
+- Many clips from several devices, a shot list before shooting, missing-shot reminders, a styled rough cut with camera moves/effects, 360 footage or a 剪映 draft: [auto edit](references/auto-edit.md) (details of moves and effects: [moves and effects](references/auto-edit-effects.md)). For a handful of clips with decided cuts, use `render` from the video guide instead.
 - Shot language, cinematic openings, motion graphics, VFX and color: [cinematic language](references/cinematic-language.md).
 - Upload, draft, publish and verify: [publishing](references/publishing.md).
 - Structured briefs and local platform bundles: [brief contract](references/brief-contract.md).
@@ -38,7 +39,8 @@ Commands below are relative to this skill folder. Run `--help` before an unfamil
 - `python scripts/story.py pack <brief.json> --output <new-directory> [--copy-assets]`: prepare selected channel files. Master text is marked as needing adaptation unless the agent authored a channel variant.
 - `python scripts/render_cards.py <cards.json> --output <new-directory>`: render actual PNG cards with measured text layout; requires Pillow and a suitable font.
 - `node scripts/capture_web.mjs ...`: optional local-page screenshots, long-image slices and deterministic web-animation export. See its `--help` and [web capture](references/web-capture.md).
-- `python video/run doctor`: inspect video capabilities. Use `inspect`, `transcribe`, `render`, `narrate`, `mix` as described in the video guide. Models are selected externally, not included.
+- `python video/run doctor`: inspect video capabilities (`--require autocut` for the auto-edit package). Use `inspect`, `transcribe`, `render`, `narrate`, `mix` as described in the video guide. Models are selected externally, not included.
+- `python video/run autocut --help`: project-based auto edit (`new`, `shotlist`, `ingest`, `analyze`, `gaps`, `plan`, `render`, `draft`, `preview`, `x5-stitch`) plus bridges to the tools above (`export-edit`, `import-edit`, `import-index`, `import-transcript`, `import-narration`). Needs `video/requirements-autocut.txt`; the other commands do not. Its plans are reviewable rough cuts: story, identity, brand and fact checks still follow this skill.
 - `python publishing/wechat.py --help`: official-account API adapter. Local preview, remote media upload, draft creation and publication are separate operations.
 
 No footage, voice samples, music, model weights, official logos, platform sessions or API keys ship with this skill. Text-only examples are demonstrations. Obtain project assets and credentials through the user's authorized environment. Use a host's native image/voice generation tools when available; do not claim a provider is installed simply because the guide mentions it.
