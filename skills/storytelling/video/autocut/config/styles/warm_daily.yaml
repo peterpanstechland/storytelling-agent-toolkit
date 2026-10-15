@@ -1,0 +1,51 @@
+id: warm_daily
+name: 温暖日常
+aliases: [温暖, 日常, 温暖日常, warm, daily, vlog]
+description: 暖色、自然节奏、柔和叠化，适合个人 vlog 和轻松的活动记录。
+pacing: {avg_shot: 2.8, min_shot: 1.2, max_shot: 5.0, hook_shot: 1.5}
+transitions:
+  within: [cut, cut, fade]
+  section: [fade, fadeblack]
+  duration: 0.5
+effects:
+  zoom_prob: 0.3
+  speed_ramp: false
+subtitle: {size: 0.05, primary: "#FFFDF5", outline: "#5A3E2B", outline_w: 2.5, bold: false, margin_v: 0.08}
+title: {size: 0.08, primary: "#FFF3D6", accent: "#FFB86B", bold: true}
+color:
+  filter: "eq=contrast=1.03:saturation=1.08:gamma=1.02,colorbalance=rm=0.04:bm=-0.04:rh=0.03"
+  lut: ""
+music: {mood: [温暖, 日常, 轻松, 原声, 吉他, warm, acoustic, chill, lofi], volume: 0.22}
+# ---- v2：运镜 / 特效 / 音效 / 文字动画 调色板 ----
+motion:
+  intensity: 0.45
+  move_prob: 0.6
+  moves_2d:
+    default: [push_in, pan, pull_out]
+    talking_head: [subject]
+    selfie: [subject, push_in]
+  punch: {prob: 0.0}
+  shake: 0.12
+  moves_360: {hook: planet_intro, establishing: [tiny_planet, orbit], selfie: hero, default: follow}
+  whip360: false
+  ramp: {prob: 0.2, roles: [action, pov], interp: blend}
+  freeze: {prob: 0.15, max: 1, callout: false}
+  pip: false
+fx:
+  look: [{type: grain, intensity: 0.15}, {type: glow, intensity: 0.2}]
+  accents: [light_leak]
+  accent_prob: 0.3
+  accent_dur: 1.2
+  peak: []
+  beat_flash: {at: none}
+sfx: {transition: "", custom_transition: swish, section: [], flash: "", glitch: "", freeze: pop, volume: 0.35}
+text_anims: {title: pop, section: slide_up, lower_third: slide_up, cta: pop, callout: pop, subtitle: ""}
+progress: {enabled: false}
+jianying:
+  transition: 叠化
+  filter: 日系奶油
+  filter_intensity: 60
+  intro: 渐显
+  outro: 渐隐
+  text_intro: 向上滑动
+  scene_effects: {light_leak: 胶片漏光, glow: 发光, grain: 噪点}

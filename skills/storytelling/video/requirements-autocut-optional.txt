@@ -1,0 +1,12 @@
+# autocut 的可选扩展，缺哪个只会降级、不会中断。
+# 剪映草稿导出（pyJianYingDraft，Apache-2.0；剪映本身与其素材库不属于本项目）
+pyJianYingDraft>=0.3.0,<0.4
+# 更精确的镜头切分（PySceneDetect，BSD-3-Clause）；缺省用 ffmpeg scene 滤镜
+scenedetect>=0.6.4
+# 配乐节拍检测，用于卡点（librosa ISC，soundfile BSD-3-Clause）
+librosa>=0.10
+soundfile>=0.12
+# YOLO ONNX 主体跟踪（onnxruntime，MIT）。权重需自行选择并遵守其许可：
+# Ultralytics YOLOv8/11 权重是 AGPL-3.0（商用需另购授权），不随仓库提供；也可选 Apache-2.0 等宽松许可的检测模型
+onnxruntime>=1.18
+# 语音转写：与 toolkit 共用 requirements-asr.txt（faster-whisper）

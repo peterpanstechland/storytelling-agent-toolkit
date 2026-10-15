@@ -1,0 +1,54 @@
+id: cyber_glitch
+name: 赛博科技/故障
+aliases: [赛博, 赛博朋克, 故障, 科技故障, 赛博科技, cyber, glitch, cyberpunk]
+description: 冷青品红撞色、RGB 分离故障、扫描线、甩镜和故障转场，卡点放大；适合 Maker 项目、科技开箱、电子类商单。
+pacing: {avg_shot: 1.6, min_shot: 0.6, max_shot: 3.2, hook_shot: 0.7}
+transitions:
+  within: [cut, cut, glitch, cut, whip_left, cut, zoom_through]
+  section: [glitch, zoom_through, whip_right]
+  duration: 0.3
+effects: {zoom_prob: 0.0, speed_ramp: false}
+beat_sync: true
+# ---- v2：运镜 / 特效 / 音效 / 文字动画 调色板（intensity 0~1 控制整体力度） ----
+motion:
+  intensity: 0.8
+  move_prob: 0.75
+  moves_2d:
+    default: [push_in, pan, pull_out]
+    action: [punch, shake]
+    build: [push_in, pan]
+    product: [push_in, pull_out, roll]
+    screen: [push_in]
+    detail: [push_in]
+    talking_head: [subject]
+  punch: {prob: 0.55, at: beats, every: 2, roles: [action, build, product, broll, detail, crowd, pov]}
+  shake: 0.0
+  moves_360: {hook: planet_intro, establishing: [orbit, rabbit_hole], selfie: hero, crowd: orbit, default: follow}
+  whip360: true
+  ramp: {prob: 0.35, roles: [action, pov, build], interp: blend}
+  freeze: {prob: 0.25, max: 2, callout: true}
+  pip: true
+fx:
+  look: [{type: scanlines, intensity: 0.25}, {type: vignette, intensity: 0.35}]
+  accents: [glitch, rgb_split]          # 段落切换/动作峰值处的短特效
+  accent_prob: 0.55
+  accent_dur: 0.45
+  peak: [rgb_split, speed_lines]
+  beat_flash: {at: downbeats, strength: 0.35, every: 2}
+sfx: {transition: whoosh, custom_transition: glitch, section: [riser, hit], flash: hit, glitch: glitch, freeze: shutter, volume: 0.55}
+text_anims: {title: glitch, section: glitch, lower_third: highlight_box, cta: pop, callout: pop, subtitle: ""}
+progress: {enabled: false, color: "#3DD6F5", height: 6}
+subtitle: {size: 0.05, primary: "#FFFFFF", outline: "#1A0033", outline_w: 3, bold: true, margin_v: 0.08}
+title: {size: 0.09, primary: "#3DF5F0", accent: "#FF2BD6", bold: true}
+color:
+  filter: "eq=contrast=1.12:saturation=1.15:gamma=0.96,colorbalance=rs=-0.06:bs=0.10:rh=0.06:bh=0.04"
+  lut: ""
+music: {mood: [电子, 赛博, 合成器, 科技, cyberpunk, synthwave, electronic, edm], volume: 0.26}
+jianying:
+  transition: 故障
+  filter: 赛博朋克
+  filter_intensity: 70
+  intro: 动感放大
+  text_intro: 故障打字机
+  text_loop: 色差故障
+  scene_effects: {glitch: 色差故障, rgb_split: 色差, scanlines: 隔行扫描, speed_lines: 冲刺, flash: 闪白, shake: 抖动}
