@@ -86,6 +86,9 @@ def export_edit(project: Project, edl: EDL, out: Path, fit: str = "cover") -> tu
                   "clips": [], "captions": []}
     lossy = {"transition": 0, "move": 0, "fx": 0, "speed": 0, "freeze": 0, "pip": 0, "360": 0}
     for c in edl.clips:
+        if c.generated:
+            warnings.append(f"生成片段 {c.id}（{c.generated.get('type')}）没有素材文件，edit.json 无法表示，已跳过。")
+            continue
         src = Path(c.src)
         if not src.is_absolute():
             src = project.root / src

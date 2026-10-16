@@ -363,8 +363,18 @@ REGISTRY: dict[str, type[Effect]] = {c.type: c for c in (Glitch, RGBSplit, Scanl
                                                          SpeedLines, MotionTrail, FilmGrain, VHS, Vignette, BW)}
 
 
+# heavier effects live in their own modules (import on demand; they import Effect from here)
+LAZY = {"film_stock": ("premium", "FilmStock"), "anamorphic": ("premium", "Anamorphic"), "vhs_pro": ("premium", "VHSPro"),
+        "lens_look": ("lens", "LensLook"), "tracker_hud": ("hud", "TrackerHUD")}
+HUD_ORDER = {"lens_look": 1, "tracker_hud": 2}   # run after the other looks; HUD stays sharp on top
+
+
 def make_effect(kind: str, W: int, H: int, fps: int, intensity: float, params: dict | None = None, seed: int = 0) -> Effect | None:
     cls = REGISTRY.get(kind)
+    if cls is None and kind in LAZY:
+        import importlib
+        mod, name = LAZY[kind]
+        cls = getattr(importlib.import_module(f"{__package__}.{mod}"), name)
     return cls(W, H, fps, intensity, params, seed) if cls else None
 
 

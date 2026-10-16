@@ -43,7 +43,9 @@ def _us(t: float) -> int:
 
 def needs_bake(c: Clip) -> bool:
     """剪映 cannot do these natively → bake the geometry (no colour/effects) into a mezzanine clip."""
-    return bool(c.projection == "equirect" or c.ramp or c.freeze or c.pip)
+    from ..edl import HUD_FX
+    return bool(c.projection == "equirect" or c.ramp or c.freeze or c.pip or c.generated
+                or any(f.type in HUD_FX for f in c.fx))
 
 
 def bake_clip(project: Project, edl: EDL, c: Clip, clip_start: float, out_dir: Path) -> Path:
@@ -53,7 +55,8 @@ def bake_clip(project: Project, edl: EDL, c: Clip, clip_start: float, out_dir: P
     from ..media import pick_encoder
     from ..util import short_hash
 
-    clean = c.model_copy(update={"fx": [], "volume": 1.0})
+    from ..edl import HUD_FX
+    clean = c.model_copy(update={"fx": [f for f in c.fx if f.type in HUD_FX], "volume": 1.0})   # tracker_hud / lens_look stay baked in
     e2 = edl.model_copy(update={"look": []})
     key = short_hash(clean.model_dump_json(), e2.width, e2.height, e2.fps, n=12)
     out = out_dir / f"{c.id}_{key}.mp4"
@@ -165,7 +168,10 @@ def export_jianying(project: Project, edl: EDL, drafts_dir: Path | None = None, 
                 parts = [(0.0, min(c.duration, mdur), 1.0)]
                 n_baked += 1
             except Exception as e:  # noqa: BLE001
-                notes.append(f"片段 {c.id} 预渲染失败（{e}），草稿里用原始素材代替（无 360 重构图/变速曲线/定格）。")
+                if c.generated:
+                    notes.append(f"生成片段 {c.id}（{c.generated.get('type')}）预渲染失败（{e}），草稿里已跳过。")
+                    continue
+                notes.append(f"片段 {c.id} 预渲染失败（{e}），草稿里用原始素材代替（无 360 重构图/变速曲线/定格/追踪框 HUD/镜头质感）。")
                 baked = False
         if not baked:
             parts = ramp_parts(c)

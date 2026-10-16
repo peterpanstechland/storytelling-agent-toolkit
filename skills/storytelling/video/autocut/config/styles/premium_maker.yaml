@@ -1,0 +1,46 @@
+id: premium_maker
+name: 高级科技感
+aliases: [高级科技, 科技高级, premium_maker, maker高级]
+description: Maker / 产品 / 发布演示的高级预设：青橙电影调色 + 蓝色变形拉丝光 + 位移故障 / 斜向扭曲 / 变形叠化转场，局部 VHS Pro。
+pacing: {avg_shot: 2.3, min_shot: 0.9, max_shot: 4.2, hook_shot: 0.9}
+transitions:
+  within: [cut, cut, cut, gl_directional_warp]
+  section: [gl_glitch_displace, gl_morph, gl_cube, gl_cross_zoom]
+  duration: 0.6
+effects: {zoom_prob: 0.25, speed_ramp: false}
+motion:
+  intensity: 0.6
+  move_prob: 0.6
+  moves_2d:
+    default: [push_in, pan]
+    product: [push_in, pull_out]
+    screen: [push_in]
+    talking_head: [subject]
+  punch: {prob: 0.25, at: downbeats, every: 1, roles: [product, build, detail]}
+  shake: 0.0
+  moves_360: {hook: planet_intro, establishing: orbit, selfie: hero, default: follow}
+  whip360: true
+  ramp: {prob: 0.0}
+  freeze: {prob: 0.25, max: 2, callout: true}
+  pip: true
+fx:
+  look: [{type: film_stock, intensity: 0.8, params: {stock: teal_orange}}]
+  accents: [anamorphic, vhs_pro, rgb_split]
+  accent_prob: 0.3
+  accent_dur: 0.9
+  peak: [anamorphic]
+  beat_flash: {at: none}
+sfx: {transition: swish, custom_transition: whoosh, section: [whoosh], flash: "", glitch: glitch, freeze: pop, volume: 0.4}
+text_anims: {title: highlight_box, section: slide_up, lower_third: highlight_box, cta: pop, callout: pop, subtitle: ""}
+progress: {enabled: true, color: "#3DD6F5", height: 6}
+subtitle: {size: 0.048, primary: "#FFFFFF", outline: "#101820", outline_w: 2.5, bold: false, margin_v: 0.07}
+title: {size: 0.085, primary: "#FFFFFF", accent: "#3DD6F5", bold: true}
+color: {filter: "", lut: ""}
+music: {mood: [电子, 科技, 轻快, electronic, synthwave], volume: 0.2}
+jianying:
+  transition: 叠化
+  filter: 青橙电影
+  filter_intensity: 50
+  intro: 渐显
+  text_intro: 向上滑动
+  scene_effects: {rgb_split: 色差, glitch: 故障}

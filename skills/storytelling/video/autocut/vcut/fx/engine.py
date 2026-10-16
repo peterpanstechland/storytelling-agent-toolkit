@@ -21,11 +21,13 @@ from ..edl import EDL, FX, Clip
 from ..media import FFmpegError, ffmpeg_bin, kind_of, probe, video_encode_args
 from .camera2d import Camera2D, pulse_env
 from .ease import ease
-from .effects import make_effect, window_env
+from .effects import HUD_ORDER, make_effect, window_env
 from .moves360 import Shot360
 from .sphere import Reprojector, View
 
 CAMERA_FX = {"punch", "shake"}
+CTX_KEYS = {"mode", "points", "max_boxes", "detect_every", "locks", "lock_count", "lock_hold", "collapse_at",
+            "collapse_dur", "cuts"}
 _NOWIN = {"creationflags": 0x08000000} if os.name == "nt" else {}
 
 
@@ -232,6 +234,11 @@ def render_clip(project, edl: EDL, c: Clip, clip_start: float, out: Path, W: int
                 encoder: str, lut_name: str, color_filter: str, cwd: Path) -> Path:
     from ..render import atempo_chain, reframe_filter  # local import (render imports this module lazily)
 
+    if c.generated:   # bake_clip / preview paths come here too
+        from .terminal import render_terminal
+        return render_terminal(project, edl, c, clip_start, out, W, H, fps, quick=quick, encoder=encoder,
+                               lut_name=lut_name, color_filter=color_filter, cwd=cwd)
+
     rcfg = config.settings().get("render") or {}
     src = Path(c.src)
     src = src if src.is_absolute() else project.root / src
@@ -350,6 +357,18 @@ def render_clip(project, edl: EDL, c: Clip, clip_start: float, out: Path, W: int
               if f.type not in CAMERA_FX]
     fx_img += [(f, make_effect(f.type, W, H, fps, f.intensity, f.params, seed + 50 + i)) for i, f in enumerate(edl.look)]
     fx_img = [(f, e) for f, e in fx_img if e is not None]
+    fx_img.sort(key=lambda fe: HUD_ORDER.get(fe[0].type, 0))   # stable: lens_look, then tracker_hud last
+    ctx = None
+    ctx_specs = [(f, e) for f, e in fx_img if getattr(e, "needs_ctx", False)]
+    if ctx_specs:
+        from .trackctx import TrackCtx
+        merged: dict = {}
+        for f, _ in ctx_specs:
+            merged.update({k: v for k, v in f.params.items() if k in CTX_KEYS})
+        merged.setdefault("cuts", [])
+        ctx = TrackCtx(W, H, fps, dur_out, merged, beats=beats, seed=seed)
+        for _, e in ctx_specs:
+            e.bind(ctx)
     punch = next((f for f in c.fx if f.type == "punch"), None)
     shake = next((f for f in c.fx if f.type == "shake"), None)
     punch_beats = beats if not punch or not punch.params.get("times") else list(punch.params["times"])
@@ -453,6 +472,8 @@ def render_clip(project, edl: EDL, c: Clip, clip_start: float, out: Path, W: int
             if pip_reader is not None:
                 frame = compose_pip(frame, pip_reader.get(i), c.pip.layout, t)  # type: ignore[union-attr]
             # --- looks / effects
+            if ctx is not None:
+                ctx.update(frame, i, t)
             for spec, eff in fx_img:
                 env = _fx_env(spec, t, dur_out, beats)
                 frame = eff(frame, t, env)

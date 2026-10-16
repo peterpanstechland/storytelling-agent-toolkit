@@ -411,6 +411,15 @@ def doctor():
         (ok if " ass " in filt else warn)(f"ffmpeg ass 字幕滤镜：{'可用' if ' ass ' in filt else '不可用（标题/字幕无法烧录）'}")
     except Exception:  # noqa: BLE001
         pass
+    try:
+        from .fx import fonts
+
+        fp = fonts.font_paths()
+        (ok if fonts.have_pillow() else warn)(
+            f"Pillow（HUD / 终端卡文字）：{'已安装' if fonts.have_pillow() else '未安装，回退到 OpenCV 内置字体（pip install -r video/requirements-autocut-optional.txt）'}")
+        info(f"HUD 字体：等宽={fp.get('mono') or '内置回退'}；中文={fp.get('cjk') or '无（中文将显示为方框；装 Noto Sans CJK 即可）'}")
+    except Exception as e:  # noqa: BLE001
+        warn(f"HUD 字体检查失败：{e}")
     lib = (config.settings().get("sfx") or {}).get("library") or os.environ.get("VCUT_SFX_LIBRARY") or ""
     info(f"音效库：{lib or '未配置（自动合成 whoosh/hit/riser 等）'}")
 
@@ -461,6 +470,15 @@ def fx_list():
         info(f"[bold]{title}[/bold]")
         for k, v in d.items():
             info(f"  {k:<14} {v}")
+    from .edl import CLIP_TYPES
+    from .fx.lens import CAM_PRESETS, PALETTES
+
+    info("[bold]片段类型（clip.type）[/bold]")
+    for k, v in CLIP_TYPES.items():
+        info(f"  {k:<14} {v}")
+    info("[bold]lens_look 调色板（palette）[/bold]  " + " ".join(PALETTES))
+    info("[bold]lens_look 镜头预设（camera）[/bold]  " + " ".join(CAM_PRESETS))
+    info("  例：autocut preview 素材.mp4 --fx tracker_hud,lens_look:thermal --dur 6")
     info("[bold]xfade 转场[/bold]")
     info("  " + " ".join(k for k in XFADE if k != "cut"))
 
@@ -518,7 +536,7 @@ def x5_stitch(file: Path = typer.Argument(..., help="Insta360 原始 .insv（X5/
 @app.command()
 def preview(file: Path = typer.Argument(..., help="视频文件（360 全景 2:1 或普通视频）"),
             move: str = typer.Option("", help="运镜名，见 autocut fx（360 默认 follow，普通视频默认 push_in）"),
-            fx: str = typer.Option("", help="特效，逗号分隔，如 glitch,light_leak,grain"),
+            fx: str = typer.Option("", help="特效，逗号分隔，如 glitch,light_leak 或 tracker_hud,lens_look:thermal（name:值 或 name:k=v;k=v，列表用 |）"),
             aspect: str = typer.Option("16:9", help="16:9 或 9:16"),
             start: float = typer.Option(0.0, help="源开始秒"),
             dur: float = typer.Option(6.0, help="时长（秒）"),
@@ -527,7 +545,7 @@ def preview(file: Path = typer.Argument(..., help="视频文件（360 全景 2:1
     """单独预览一个运镜/特效（不需要项目），用来挑参数。"""
     import tempfile
 
-    from .edl import EDL, FX, Clip, Move
+    from .edl import EDL, Clip, Move, parse_fx_arg
     from .fx.engine import render_clip
     from .media import is_equirect_size, pick_encoder, probe
     from .project import Project
@@ -539,7 +557,7 @@ def preview(file: Path = typer.Argument(..., help="视频文件（360 全景 2:1
     dur = min(dur, max(0.5, float(pi.duration or dur) - start))
     c = Clip(id="p1", media_id="preview", src=str(file.resolve()), **{"in": start}, out=start + dur,
              projection="equirect" if eq else "flat", move=Move(type=mv),
-             fx=[FX(type=x.strip()) for x in fx.split(",") if x.strip()])
+             fx=parse_fx_arg(fx))
     if eq and track and mv in ("follow", "hero", "whip360", "planet_intro", "fixed360", "crystal_ball"):
         from .fx.track import track_360
         r = track_360(file, start, dur)

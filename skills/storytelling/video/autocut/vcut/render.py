@@ -299,11 +299,34 @@ def _audio_chain_for(c: Clip, inp: str, dur_out: float) -> str:
     return f"{inp}{chain}[a]"
 
 
+def _pan_filter(pan: float) -> str:
+    """Equal-power pan for an sfx item (empty when centred)."""
+    import math
+    if abs(pan) < 0.02:
+        return ""
+    p = max(-1.0, min(1.0, pan))
+    return f",pan=stereo|c0={math.cos((p + 1) * math.pi / 4) * math.sqrt(2):.4f}*c0|c1={math.sin((p + 1) * math.pi / 4) * math.sqrt(2):.4f}*c1"
+
+
 # ----------------------------------------------------------------- pass 1
 
 
 def _clip_job(project: Project, edl: EDL, c: Clip, cache_dir: Path, W: int, H: int, fps: int, quick: bool,
               encoder: str, hwaccel: str, lut_name: str, clip_start: float = 0.0, use_fx: bool = True) -> Path:
+    if c.generated:   # terminal_hud insert card: no source file, rendered by the frame engine
+        from .fx import ENGINE_VERSION
+        beats = [round(b - clip_start, 3) for b in edl.beats if clip_start - 0.05 <= b <= clip_start + c.duration]
+        key = short_hash(ENGINE_VERSION, c.model_dump_json(exclude={"note", "section", "role", "id", "transition_in"}),
+                         [f.model_dump_json() for f in edl.look], beats, W, H, fps, edl.color_filter, lut_name, quick, encoder, n=16)
+        out = cache_dir / f"gen_{key}.mp4"
+        if out.exists() and out.stat().st_size > 0:
+            return out
+        from .fx.terminal import render_terminal
+        part = out.with_name(f"{out.stem}.{uuid.uuid4().hex[:8]}.part.mp4")
+        render_terminal(project, edl, c, clip_start, part, W, H, fps, quick=quick, encoder=encoder, lut_name=lut_name,
+                        color_filter=edl.color_filter, cwd=cache_dir.parent)
+        part.replace(out)
+        return out
     src = Path(c.src)
     src = src if src.is_absolute() else project.root / src
     if not src.exists():
@@ -659,7 +682,7 @@ def render(project: Project, edl: EDL | None = None, *, out: Path | None = None,
             ms = max(0, int(a.start * 1000))
             dur = f":duration={a.duration:.3f}" if a.duration > 0 else ""
             fc.append(f"[{next_in}:a]atrim=start={a.in_:.3f}{dur},asetpts=PTS-STARTPTS,aresample=48000,"
-                      f"aformat=sample_fmts=fltp:channel_layouts=stereo,volume={a.volume:.3f},adelay={ms}|{ms}[sx{k}]")
+                      f"aformat=sample_fmts=fltp:channel_layouts=stereo,volume={a.volume:.3f}{_pan_filter(a.pan)},adelay={ms}|{ms}[sx{k}]")
             labels.append(f"sx{k}")
             next_in += 1
         fc.append("".join(f"[{x}]" for x in labels) + f"amix=inputs={len(labels)}:normalize=0[sfxbus]")

@@ -56,7 +56,7 @@ authors the story and channel variants, and selects the user's source material.
   heuristics), styled rough cuts with beat-synced punch-ins, whip pans, speed
   ramps, glitch/leak/flash effects, kinetic text and synthesized SFX, **Insta360
   X5 360° auto-reframing** (tiny planet, orbit, follow, hero shot; 16:9 and 9:16),
-  FFmpeg MP4 preview and **Jianying (剪映) draft** export. It converts to and
+  FFmpeg MP4 preview and **Jianying (剪映) draft** export. Also: ff-tracking-style tracker HUD / lens look / terminal card (MIT port), 13 ported GL Transitions, film emulation / anamorphic streaks / VHS Pro and the `premium_film` / `premium_maker` styles (sources and licence verdicts: `skills/storytelling/references/fx-sources.md`). It converts to and
   from the toolkit's `edit.json`, transcripts, inspect index and narration
   output (the `edit.json` export is lossy). It needs extra packages
   (`video/requirements-autocut.txt`); every other command works without them.

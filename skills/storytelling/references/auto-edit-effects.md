@@ -76,6 +76,37 @@ Hand-tuning means editing `edl.json`, for example:
  "transition_in": {"type": "whip_left", "duration": 0.35}}
 ```
 
+## ff-tracking look (tracker HUD, lens look, terminal card)
+
+Ported from [mrsarac/ff-tracking](https://github.com/mrsarac/ff-tracking) (MIT, © its author) as NumPy effects that work on real footage (16:9 and 9:16, CPU, GPU optional):
+
+- **`lens_look`**: palette mapping (`paper|thermal|mono|phosphor|amber|navy|neon`, `palette_mix` for partial colour), radial chromatic aberration `ca`, bloom, equal-area RGB LED grid `led` / `cell`,
+  perspective camera (`camera` preset, `tilt`, `zoom`, `aim`), tracked-subject depth of field `dof`, tear/vignette/flicker/grain, cut exposure kick. `fit: cover` auto-zooms footage so the plane fills the frame.
+- **`tracker_hud`**: hatched difference-blend boxes on detected subjects (face / person / motion / saliency peaks / manual points), links with travelling dots, real output-pixel coordinate labels,
+  corner brackets, a **lock moment** (`locks=[seconds]`: red box + flash + tear + aberration), then collapse to a "Done" pill. The planner puts the lock on the beat nearest the action peak.
+- **`terminal_hud` clip type** (generated, no footage): typed lines with a tracker on the newest glyphs, per-line camera presets, palette cycle, collapse → Done. Built from the project brief
+  and inserted after the hook when `hud.terminal.enabled` is true. Needs Pillow for crisp text (falls back to OpenCV fonts).
+- **SFX**: keystroke ticks, pentatonic lock beep (panned), bit-crushed glitch per cut, hum, riser + chime + sub hit; the bed is normalised to −14 LUFS. 
+- Style `tracker_hud` turns everything on; the `hud:` block is present but **off** in other styles. 剪映 cannot reproduce these effects, so HUD clips are baked into the exported clip.
+- CLI: `autocut preview <clip> --fx "lens_look:thermal,tracker_hud:label=Done;locks=1.4|2.6;mode=faces"`; `autocut fx` lists everything.
+
+Deliberate differences from ff-tracking: its generative Rust/Skia scene is not embedded; DoF is a quarter-res multi-level blur weighted by distance from the tracked subject (flat footage has no depth, so a
+radial term stands in for it) instead of 36 bokeh taps; the perspective is a ray/plane projection of the *frame* onto a virtual screen; red is not passed through unless `keep_red`.
+Cost on an 8-core CPU, 1080p: roughly 70 ms per frame for lens + HUD.
+
+## GL Transitions (`gl_*`)
+
+Thirteen [GL Transitions](https://github.com/gl-transitions/gl-transitions) (MIT; each credited to its author in `vcut/fx/gltransitions.py` and `NOTICE.md`) re-implemented in NumPy/OpenCV:
+`gl_cross_zoom`, `gl_crosswarp`, `gl_directional_warp`, `gl_ripple`, `gl_morph`, `gl_overexposure`, `gl_dreamy_zoom`, `gl_swirl`, `gl_fly_eye`, `gl_cube`, `gl_glitch_displace`, `gl_film_burn`,
+`gl_luma_melt`. Use them anywhere a transition name is accepted (`transition_in.type`, style `transitions.within/section`). 剪映 drafts get the nearest built-in transition.
+Per-transition cost and differences from the GLSL (fewer taps, half-res blur) are in [effect sources](fx-sources.md).
+
+## Premium looks
+
+Original implementations (no third-party code): **`film_stock`** (`params.stock`: `kodak_warm | teal_orange | fuji_cool | faded | bleach` — S-curve, split-tone, red-orange halation, luma-weighted grain, gate weave;
+~90 ms per 1080p frame), **`anamorphic`** (`tint`: `blue|amber|white|teal`, `length`, `threshold`; ~8 ms), **`vhs_pro`** (ghosting, chroma smear, row wobble, dropouts, tracking bands; ~35 ms).
+Styles **`premium_film`** (events / vlog / brand recap: Kodak warm, anamorphic accents, cross-zoom / film-burn / crosswarp section transitions) and **`premium_maker`** (teal-orange, glitch-displace / morph / cube).
+
 ## Performance
 
 - Clips with moves or effects use the frame engine; other clips keep the fast ffmpeg path. Each clip is rendered to a **cached intermediate** (key includes source, parameters,
@@ -94,5 +125,5 @@ from it, a Mandelbrot clip and a synthetic drum loop). Output goes to a director
 
 ## Sources and licenses
 
-The effects, reprojection and SFX synthesis are this repository's own code (MIT). Third-party dependencies and their licenses are listed in the repository's `NOTICE.md`; no YOLO
+The effects, reprojection and SFX synthesis are this repository's own code (MIT), except where noted: the ff-tracking look and the GL Transitions ports are derived from MIT-licensed upstream work and credited in `NOTICE.md`. The full survey of other open-source effect projects, with the licence verdict for each (ported, reference-only, rejected), is in [fx-sources.md](fx-sources.md). Third-party dependencies and their licenses are listed in the repository's `NOTICE.md`; no YOLO
 weights are distributed.

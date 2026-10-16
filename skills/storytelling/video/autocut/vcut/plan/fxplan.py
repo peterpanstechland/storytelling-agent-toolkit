@@ -193,8 +193,14 @@ def plan_fx(edl: EDL, project: Project, style: dict, catalog: list[dict], marks:
     sfx = style.get("sfx") or {}
     notes: list[str] = []
     pdata = project.load()
-    if not motion and not fxs:
+    hcfg = style.get("hud") or {}
+    if not motion and not fxs and not hcfg:
         return notes
+    if hcfg:
+        from .hudplan import insert_terminal_card
+        marks, tnote = insert_terminal_card(edl, project, style, marks)
+        if tnote:
+            notes.append(tnote)
     if do_track is None:
         do_track = (config.settings().get("track") or {}).get("detector", "auto") != "none"
     inten = float(motion.get("intensity", 0.6))
@@ -215,6 +221,8 @@ def plan_fx(edl: EDL, project: Project, style: dict, catalog: list[dict], marks:
     hi_act = acts[int(0.7 * (len(acts) - 1))]
     n_tracked = 0
     for i, (c, (s, e)) in enumerate(zip(edl.clips, tl)):
+        if c.generated:
+            continue
         u = unit_for(c, catalog) or {}
         k = _h(c.id, c.media_id, c.in_, "fx")
         dur = c.duration
@@ -324,7 +332,17 @@ def plan_fx(edl: EDL, project: Project, style: dict, catalog: list[dict], marks:
                 continue
             edl.flashes.append([round(b, 3), round(float(bf.get("strength", 0.5)), 2)])
             last = b
+    # ---------------- tracker HUD windows (after transitions are final: the lock sits on a beat / action peak)
+    if hcfg:
+        from .hudplan import plan_hud_sfx, plan_tracker_hud
+        notes += plan_tracker_hud(edl, project, style, catalog, tl)
     # ---------------- SFX
+    if hcfg and (config.settings().get("sfx") or {}).get("enabled", True):
+        from .hudplan import plan_hud_sfx
+        hv = float(hcfg.get("sfx_volume", (sfx or {}).get("volume", 0.5)))
+        nh = plan_hud_sfx(edl, project, style, tl, hv)
+        if nh:
+            notes.append(f"HUD 音效 {nh} 个（键盘声 / 锁定提示音 / 故障切换 / 收束 chime，程序合成，-14 LUFS）。")
     if (config.settings().get("sfx") or {}).get("enabled", True) and sfx:
         vol = float(sfx.get("volume", (config.settings().get("sfx") or {}).get("volume", 0.5)))
         n = 0
@@ -402,6 +420,16 @@ def sanitize_llm_clip_fx(c: Clip, raw: dict) -> None:
         except (TypeError, ValueError):
             continue
         prm = {"on": "beats"} if f.get("on") == "beats" else {}
+        if f["type"] == "lens_look":
+            from ..fx.lens import PALETTES
+            if f.get("palette") in PALETTES:
+                prm["palette"] = f["palette"]
+        if f["type"] == "tracker_hud":
+            if isinstance(f.get("label"), str):
+                prm["label"] = f["label"][:16]
+            lk = [round(float(x), 3) for x in (f.get("locks") or []) if isinstance(x, (int, float)) and 0 <= x <= c.duration]
+            if lk:
+                prm["locks"] = lk[:3]
         c.fx.append(FX(type=f["type"], start=round(st, 3), dur=d, intensity=it, params=prm))
     if raw.get("ramp") and c.role not in PEOPLE and c.src_duration >= 1.5:
         c.ramp = Ramp()
@@ -415,4 +443,6 @@ def llm_vocab() -> str:
     def j(d):
         return "、".join(f"{k}({v.split('（')[0]})" for k, v in d.items())
     return (f"360 运镜（仅 360 素材）：{j(MOVES_360)}\n平面运镜：{j(MOVES_2D)}\n"
-            f"特效（fx 窗口，start/dur 为片段内秒）：{j(FX_TYPES)}\n自定义转场：{j(CUSTOM_TRANSITIONS)}")
+            f"特效（fx 窗口，start/dur 为片段内秒）：{j(FX_TYPES)}\n自定义转场：{j(CUSTOM_TRANSITIONS)}\n"
+            "HUD：tracker_hud 可带 locks=[锁定瞬间的片段内秒]、label；lens_look 可带 palette（paper/thermal/mono/phosphor/amber/navy/neon）。"
+            "适合产品/细节/屏幕/演示镜头，不要用在口播上。终端插卡（terminal_hud）由风格的 hud.terminal 自动生成，不用你输出。")

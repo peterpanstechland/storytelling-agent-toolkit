@@ -58,6 +58,9 @@ def export_fcpxml(project: Project, edl: EDL, out: Path | None = None) -> Path:
     for c, (s, _e) in zip(edl.clips, layout):
         src = Path(c.src)
         src = src if src.is_absolute() else project.root / src
+        if c.generated:   # generated cards have no source file: use the pre-rendered mezzanine
+            from .jianying import bake_clip
+            src = bake_clip(project, edl, c, 0.0, project.drafts_dir / "fcpxml_media")
         aid = asset(src)
         t = s
         for a, b, sp in ramp_parts(c):

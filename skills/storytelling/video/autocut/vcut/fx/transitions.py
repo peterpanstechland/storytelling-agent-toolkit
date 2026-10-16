@@ -130,6 +130,9 @@ class Transitioner:
 
     def frame(self, a: np.ndarray, b: np.ndarray, x: float, t: float) -> np.ndarray:
         k = self.kind
+        if k.startswith("gl_"):
+            from .gltransitions import gl_frame
+            return gl_frame(k, a, b, x)
         if k.startswith("whip_"):
             return whip(a, b, x, k.split("_", 1)[1])
         if k in ("spin", "spin_ccw"):

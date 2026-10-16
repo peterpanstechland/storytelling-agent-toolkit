@@ -32,6 +32,28 @@ JIANYING_TRANSITION.update({
     "spin": "顺时针旋转", "spin_ccw": "逆时针旋转", "zoom_through": "推近", "glitch": "故障", "flash": "闪白",
     "light_leak": "泛光",
 })
+# GL Transitions (MIT, https://github.com/gl-transitions/gl-transitions) ported to NumPy in vcut.fx.gltransitions
+GL_TRANSITIONS_DESC = {
+    "gl_cross_zoom": "穿越缩放模糊叠化（GL Transitions · rectalogic）",
+    "gl_crosswarp": "交叉扭曲：A 放大冲出、B 缩小就位（GL Transitions · Eke Péter）",
+    "gl_directional_warp": "斜向扭曲擦除（GL Transitions · pschroen）",
+    "gl_ripple": "水波纹扩散叠化（GL Transitions · gre）",
+    "gl_morph": "色彩位移变形叠化（GL Transitions · paniq）",
+    "gl_overexposure": "过曝叠化（GL Transitions · Ben Zhang）",
+    "gl_dreamy_zoom": "梦幻缩放旋转 + 闪亮（GL Transitions · Zeh Fernando）",
+    "gl_swirl": "漩涡叠化（GL Transitions · Sergey Kosarevsky）",
+    "gl_fly_eye": "蝇眼透镜 + 色散（GL Transitions · gre）",
+    "gl_cube": "3D 立方体翻转 + 地面倒影（GL Transitions · gre）",
+    "gl_glitch_displace": "位移故障闪入（GL Transitions · Matt DesLauriers）",
+    "gl_film_burn": "胶片烧灼漏光（GL Transitions · Anastasia Dunbar）",
+    "gl_luma_melt": "亮度融化（GL Transitions · 0gust1）",
+}
+CUSTOM_TRANSITIONS.update(GL_TRANSITIONS_DESC)
+JIANYING_TRANSITION.update({
+    "gl_cross_zoom": "推近", "gl_crosswarp": "横向模糊", "gl_directional_warp": "横向模糊", "gl_ripple": "叠化",
+    "gl_morph": "叠化", "gl_overexposure": "闪白", "gl_dreamy_zoom": "泛光", "gl_swirl": "顺时针旋转",
+    "gl_fly_eye": "叠化", "gl_cube": "叠化", "gl_glitch_displace": "故障", "gl_film_burn": "泛光", "gl_luma_melt": "叠化",
+})
 ALL_TRANSITIONS = set(XFADE) | set(CUSTOM_TRANSITIONS)
 
 EFFECTS = {"zoom_in", "zoom_out", "speed_ramp", "bw", "vignette", "freeze_end"}  # v1 legacy flags
@@ -55,7 +77,66 @@ FX_TYPES = {
     "vhs": "VHS 录像带", "motion_blur": "运动模糊 / 拖影", "vignette": "暗角", "bw": "黑白", "glow": "辉光",
     "shake": "震动（同 shake 运镜，可按节拍）", "scanlines": "扫描线",
     "punch": "卡点放大（params.on=beats 跟节拍；否则在窗口内放大一次）",
+    "film_stock": "胶片模拟（S 曲线 + 分离色调 + 光晕 halation + 亮度加权颗粒 + 片门抖动；params.stock=kodak_warm|teal_orange|fuji_cool|faded|bleach）",
+    "anamorphic": "变形宽银幕镜头横向拉丝光（params.tint=blue|amber|white|teal, length, threshold）",
+    "vhs_pro": "VHS Pro（重影 + 色度拖尾 + 行抖动 + 掉磁 + 跟踪噪带，比 vhs 更强）",
+    "tracker_hud": "追踪框 HUD（影线框 + 连线 + 真实像素坐标 + 锁定瞬间 + 收束 Done；移植自 ff-tracking，MIT）",
+    "lens_look": "镜头质感（LED 屏幕拍摄：调色板映射 + 径向色散 + 辉光 + LED 网格 + 追踪驱动景深 + 透视倾斜；移植自 ff-tracking，MIT）",
 }
+CLIP_TYPES = {"media": "普通素材片段", "terminal_hud": "终端 / Agent HUD 插卡（生成画面：打字 + 追踪框 + 镜头质感；移植自 ff-tracking）"}
+HUD_FX = {"tracker_hud", "lens_look"}   # frame-level looks 剪映 cannot reproduce → pre-rendered into the clip
+FX_PRIMARY = {"lens_look": "palette", "tracker_hud": "label", "film_stock": "stock", "anamorphic": "tint"}
+
+
+def _coerce(v: str):
+    low = v.lower()
+    if low in ("true", "false"):
+        return low == "true"
+    try:
+        return int(v) if v.lstrip("-").isdigit() else float(v)
+    except ValueError:
+        pass
+    if "," in v or "|" in v or v.startswith("["):
+        parts = [x for x in v.strip("[]").replace("|", ",").split(",") if x != ""]
+        try:
+            return [float(x) for x in parts]
+        except ValueError:
+            return parts
+    return v
+
+
+def parse_fx_arg(arg: str) -> list["FX"]:
+    """CLI helper: "glitch,lens_look:thermal,tracker_hud:label=Done;locks=1.4|2.6;mode=faces" → [FX, …].
+    name:value (no '=') sets the effect's primary param (lens_look → palette, tracker_hud → label) or intensity
+    when numeric; name:k=v;k=v sets params (use | for lists)."""
+    out: list[FX] = []
+    for chunk in arg.split(","):
+        chunk = chunk.strip()
+        if not chunk:
+            continue
+        if ":" not in chunk:
+            out.append(FX(type=chunk))
+            continue
+        name, rest = chunk.split(":", 1)
+        params: dict = {}
+        fx = FX(type=name.strip())
+        for part in rest.split(";"):
+            if not part:
+                continue
+            if "=" in part:
+                k, v = part.split("=", 1)
+                params[k.strip()] = _coerce(v.strip())
+            else:
+                v = _coerce(part)
+                if isinstance(v, (int, float)) and not isinstance(v, bool):
+                    fx.intensity = float(v)
+                elif name.strip() in FX_PRIMARY:
+                    params[FX_PRIMARY[name.strip()]] = part
+        fx.params = params
+        out.append(fx)
+    return out
+
+
 TEXT_ANIMS = {
     "fade": "淡入淡出", "pop": "弹出放大", "slide_up": "上滑进入", "typewriter": "打字机", "glitch": "故障抖动",
     "stamp": "盖章砸入", "kinetic": "逐词弹出", "highlight_box": "色块擦出",
@@ -138,10 +219,10 @@ class PIP(BaseModel):
 class Clip(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
     id: str
-    media_id: str
-    src: str
-    in_: float = Field(alias="in", ge=0)
-    out: float
+    media_id: str = ""
+    src: str = ""
+    in_: float = Field(0.0, alias="in", ge=0)
+    out: float = 0.0
     role: str = "broll"
     section: str = ""
     speed: float = Field(1.0, gt=0.1, le=8)
@@ -159,6 +240,8 @@ class Clip(BaseModel):
     pip: PIP | None = None
     focus_track: list[list[float]] = Field(default_factory=list)   # [[t_local, x, y]] normalized subject centre
     yaw_track: list[list[float]] = Field(default_factory=list)     # [[t_local, yaw, pitch]] 360 subject heading
+    # generated clip (no source file): {"type": "terminal_hud", "lines": [...], ...}; duration = out - in_ (set by the planner)
+    generated: dict | None = None
 
     @property
     def src_duration(self) -> float:
@@ -180,7 +263,7 @@ class Clip(BaseModel):
 
     def uses_engine(self) -> bool:
         """True when the clip needs the frame-level v2 engine (else the fast pure-ffmpeg path)."""
-        return bool(self.projection == "equirect" or (self.move and self.move.type not in ("", "none")) or self.fx
+        return bool(self.generated or self.projection == "equirect" or (self.move and self.move.type not in ("", "none")) or self.fx
                     or self.ramp or self.freeze or self.pip or self.focus_track)
 
     def out_to_src(self, t_out: float) -> float:
@@ -258,6 +341,7 @@ class AudioItem(BaseModel):
     fade_out: float = 0.0
     duck: bool = False
     loop: bool = False
+    pan: float = 0.0            # sfx: -1 (left) … 1 (right), equal-power
 
 
 class Logo(BaseModel):

@@ -17,7 +17,7 @@ Read only the relevant route:
 - Illustrated prose, overlays, long images, GIFs and carousels: [visual editorial](references/visual-editorial.md).
 - Adapt one story for different audiences/channels: [adaptation](references/adaptation.md).
 - Footage, narration, authorized voice cloning, subtitles and audio: [video production](references/video-production.md).
-- Many clips from several devices, a shot list before shooting, missing-shot reminders, a styled rough cut with camera moves/effects, 360 footage or a 剪映 draft: [auto edit](references/auto-edit.md) (details of moves and effects: [moves and effects](references/auto-edit-effects.md)). For a handful of clips with decided cuts, use `render` from the video guide instead.
+- Many clips from several devices, a shot list before shooting, missing-shot reminders, a styled rough cut with camera moves/effects, 360 footage or a 剪映 draft: [auto edit](references/auto-edit.md) (details of moves and effects: [moves and effects](references/auto-edit-effects.md); effect-source licences: [fx-sources](references/fx-sources.md)). For a handful of clips with decided cuts, use `render` from the video guide instead.
 - Shot language, cinematic openings, motion graphics, VFX and color: [cinematic language](references/cinematic-language.md).
 - Upload, draft, publish and verify: [publishing](references/publishing.md).
 - Structured briefs and local platform bundles: [brief contract](references/brief-contract.md).

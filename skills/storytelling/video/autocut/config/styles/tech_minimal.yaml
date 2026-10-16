@@ -39,6 +39,18 @@ fx:
   accent_dur: 0.3
   peak: []
   beat_flash: {at: none}
+hud:   # ff-tracking 风格 HUD（MIT 移植）。默认关闭以保持原有输出：tracker.prob 调到 0.3~0.6、terminal.enabled 改 true 即启用；整套预设见 style tracker_hud
+  tracker:
+    prob: 0.0
+    roles: [product, detail, screen, build, demo]
+    min_dur: 2.0
+    max_clips: 2
+    mode: auto
+    lock: peak
+    collapse: false
+    lens: {palette: mono, palette_mix: 0.45, dof: 0.6, bloom: 0.4, led: 0.3}
+  terminal: {enabled: false, position: after_hook, only_types: [maker], done: Done}
+  sfx: true
 sfx: {transition: swish, custom_transition: whoosh, section: [whoosh], flash: "", glitch: glitch, freeze: pop, volume: 0.4}
 text_anims: {title: highlight_box, section: slide_up, lower_third: highlight_box, cta: pop, callout: pop, subtitle: ""}
 progress: {enabled: true, color: "#3DD6F5", height: 6}

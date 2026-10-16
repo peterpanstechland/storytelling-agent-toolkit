@@ -14,7 +14,7 @@ from vcut.edl import (CUSTOM_TRANSITIONS, EDL, FX, FX_TYPES, JIANYING_TRANSITION
                       Move, Ramp, Transition)
 from vcut.fx.camera2d import Camera2D, pulse_env
 from vcut.fx.ease import EASINGS, Track, ease, smooth_series
-from vcut.fx.effects import REGISTRY, make_effect
+from vcut.fx.effects import LAZY, REGISTRY, make_effect
 from vcut.fx.moves360 import Shot360
 from vcut.fx.sfx import KINDS, synth
 from vcut.fx.sphere import Reprojector, View
@@ -158,7 +158,7 @@ class AutocutFxTests(unittest.TestCase):
                 out = e(fr, k / 30, 1.0)
             assert out.shape == img.shape and out.dtype == np.uint8, name
             assert np.abs(out.astype(int) - fr).mean() > 0.5, f"{name} had no visible effect"
-        assert set(FX_TYPES) - set(REGISTRY) <= {"punch", "shake"}   # camera fx handled by the engine
+        assert set(FX_TYPES) - set(REGISTRY) <= ({"punch", "shake"} | set(LAZY))   # camera fx handled by the engine
 
     def test_custom_transitions_endpoints(self):
         a = np.full((90, 160, 3), 40, np.uint8)

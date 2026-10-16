@@ -10,3 +10,5 @@ soundfile>=0.12
 # Ultralytics YOLOv8/11 权重是 AGPL-3.0（商用需另购授权），不随仓库提供；也可选 Apache-2.0 等宽松许可的检测模型
 onnxruntime>=1.18
 # 语音转写：与 toolkit 共用 requirements-asr.txt（faster-whisper）
+# HUD / 终端卡的抗锯齿文字与中文（Pillow，MIT-CMU/HPND）；缺省回退到 OpenCV 内置字体
+pillow>=10

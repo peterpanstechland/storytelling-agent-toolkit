@@ -143,3 +143,132 @@ def get_sfx(kind: str, cache_dir: Path, variant: int = 0, dur: float | None = No
     if not path.exists():
         _write(path, synth(kind, dur, seed=variant % 3 + 1))
     return path.resolve()
+
+
+# ---------------------------------------------------------------------------------------------------------
+# HUD / terminal SFX — fully synthesised, in the spirit of mrsarac/ff-tracking tools/sfx.py (MIT): screen hum,
+# keystroke clicks, pentatonic lock beep (panned), bit-crushed glitch on every cut, riser into a chime + sub hit
+# on "Done". Re-implemented here with our own constants; the final bed is normalised to -14 LUFS.
+# ---------------------------------------------------------------------------------------------------------
+PENTA = (0, 3, 5, 7, 10, 12, 15, 17)   # minor pentatonic, semitones above A4
+
+
+def _lufs(y: np.ndarray) -> float | None:
+    """Integrated loudness of a stereo float array via ffmpeg ebur128 (None if ffmpeg is unavailable)."""
+    import re
+    import subprocess
+    import tempfile
+
+    from ..media import ffmpeg_bin
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "m.wav"
+            _write(p, y)
+            r = subprocess.run([ffmpeg_bin(), "-hide_banner", "-nostats", "-i", str(p), "-af", "ebur128=peak=true", "-f", "null", "-"],
+                               stderr=subprocess.PIPE, stdout=subprocess.DEVNULL, check=False, text=True)
+        m = re.findall(r"I:\s+(-?\d+(?:\.\d+)?)\s+LUFS", r.stderr)
+        return float(m[-1]) if m else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def normalize_lufs(y: np.ndarray, target: float = -14.0, ceiling: float = 0.89) -> np.ndarray:
+    cur = _lufs(y)
+    if cur is None or cur < -70:
+        rms = float(np.sqrt(np.mean(y ** 2)) + 1e-9)
+        gain = 10 ** (((target + 3.0) - 20 * math.log10(rms)) / 20)      # rough: -3 dB offset between RMS and LUFS
+    else:
+        gain = 10 ** ((target - cur) / 20)
+    y = y * gain
+    peak = float(np.abs(y).max() + 1e-9)
+    return np.tanh(y / ceiling * 0.9) * ceiling if peak > ceiling else y
+
+
+def _place(buf: np.ndarray, snd: np.ndarray, t: float, gain: float = 1.0, pan: float = 0.0) -> None:
+    i0 = int(round(t * SR))
+    if i0 >= buf.shape[1] or i0 + snd.shape[1] <= 0:
+        return
+    if snd.ndim == 1:
+        snd = np.stack([snd, snd])
+    l, r = math.cos((pan + 1) * math.pi / 4), math.sin((pan + 1) * math.pi / 4)
+    n = min(snd.shape[1], buf.shape[1] - i0)
+    buf[0, i0:i0 + n] += snd[0, :n] * gain * l * math.sqrt(2)
+    buf[1, i0:i0 + n] += snd[1, :n] * gain * r * math.sqrt(2)
+
+
+def synth_hud(kind: str, seed: int = 0, pitch: int = 0, dur: float | None = None) -> np.ndarray:
+    r = np.random.default_rng(seed)
+    if kind == "keystroke":
+        n = int(SR * 0.05)
+        t = np.arange(n) / SR
+        noise = np.diff(r.normal(0, 1, n + 1))
+        y = noise * np.exp(-t * 160) * 0.55 + np.sin(2 * np.pi * (160 + 40 * r.random()) * t) * np.exp(-t * 90) * 0.5
+        return np.stack([y, y])
+    if kind == "lock_beep":
+        d = dur or 0.16
+        n = int(SR * d)
+        t = np.arange(n) / SR
+        f = 440.0 * 2 ** (PENTA[pitch % len(PENTA)] / 12)
+        env = np.minimum(1, t / 0.004) * np.exp(-t * 18)
+        y = (np.sin(2 * np.pi * f * t) + 0.35 * np.sin(2 * np.pi * 2 * f * t)) * env * 0.6
+        return np.stack([y, y])
+    if kind == "glitch_cut":
+        d = dur or 0.12
+        y = synth("glitch", d, seed=seed + 3)
+        return np.round(y * 8) / 8   # extra bit-crush
+    if kind == "hum":
+        d = dur or 2.0
+        n = int(SR * d)
+        t = np.arange(n) / SR
+        noise = np.convolve(r.normal(0, 1, n), np.ones(48) / 48, mode="same")
+        y = (np.sin(2 * np.pi * 50 * t) * 0.5 + np.sin(2 * np.pi * 100 * t) * 0.25 + noise * 0.35) * (0.8 + 0.2 * np.sin(2 * np.pi * 0.7 * t))
+        y *= np.minimum(1, np.minimum(t / 0.15, (d - t) / 0.25))
+        return np.stack([y, y]) * 0.5
+    if kind == "chime":
+        n = int(SR * 1.2)
+        t = np.arange(n) / SR
+        y = (np.sin(2 * np.pi * 1318.5 * t) * np.exp(-t * 4.5) + 0.7 * np.sin(2 * np.pi * 1975.5 * t) * np.exp(-t * 5.5)) * 0.5
+        y *= np.minimum(1, t / 0.003)
+        return np.stack([y, y])
+    raise ValueError(kind)
+
+
+def hud_bed(sched: dict, seed: int = 0, keystrokes: bool = True) -> np.ndarray:
+    """Whole SFX bed for a terminal card from its schedule (see fx.terminal.schedule)."""
+    total = float(sched["duration"]) + 0.6
+    buf = np.zeros((2, int(SR * total)), np.float64)
+    r = np.random.default_rng(seed)
+    _place(buf, synth_hud("hum", seed, dur=total), 0.0, 0.5)
+    if keystrokes:
+        for k, t in enumerate(sched["keys"]):
+            _place(buf, synth_hud("keystroke", seed + k), t, 0.45 + 0.25 * r.random(), pan=float(r.uniform(-0.15, 0.15)))
+    for k, t in enumerate(sched["cuts"]):
+        _place(buf, synth_hud("glitch_cut", seed + k), t, 0.55, pan=0.0)
+    for k, t in enumerate(sched["locks"]):
+        _place(buf, synth_hud("lock_beep", seed + k, pitch=k), t, 0.7, pan=[-0.5, 0.35, -0.2, 0.55, 0.0][k % 5])
+    ca, da = sched.get("collapse_at"), sched.get("done_at")
+    if ca is not None and da is not None:
+        rd = max(0.25, da - ca)
+        _place(buf, synth("riser", rd + 0.15, seed=seed + 5) * 0.8, max(0.0, ca - 0.15), 0.8)
+        _place(buf, synth_hud("chime", seed), da, 0.75)
+        _place(buf, synth("hit", 0.7, seed=seed + 7) * 0.9, da, 0.8)
+    return normalize_lufs(buf, -14.0)
+
+
+def get_hud_track(sched: dict, cache_dir: Path, seed: int = 0) -> Path:
+    key = short_hash(sched["duration"], sched["keys"], sched["locks"], sched["cuts"], sched.get("collapse_at"), seed, n=10)
+    path = cache_dir / f"terminal_{key}.wav"
+    if not path.exists():
+        _write(path, hud_bed(sched, seed))
+    return path.resolve()
+
+
+def get_lock_beep(cache_dir: Path, pitch: int = 0) -> Path:
+    path = cache_dir / f"lock_beep_{pitch % len(PENTA)}.wav"
+    if not path.exists():
+        y = synth_hud("lock_beep", pitch, pitch=pitch)
+        g = synth_hud("glitch_cut", pitch, dur=0.07) * 0.25
+        y = np.concatenate([y, np.zeros((2, int(SR * 0.1)))], axis=1)
+        y[:, : g.shape[1]] += g
+        _write(path, y * 0.8)
+    return path.resolve()
