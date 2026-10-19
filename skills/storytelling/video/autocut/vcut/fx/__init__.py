@@ -10,4 +10,4 @@ track      subject detection/tracking (YOLO-onnx → YuNet → HOG/Haar → moti
 engine     per-clip decode → process → encode pipe
 sfx        procedural sound effects (whoosh/hit/riser/glitch/shutter) + local SFX library
 """
-ENGINE_VERSION = "2.1.0"  # bump to invalidate cached engine mezzanines
+ENGINE_VERSION = "2.2.0"  # bump to invalidate cached engine mezzanines

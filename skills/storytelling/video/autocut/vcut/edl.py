@@ -242,6 +242,12 @@ class Clip(BaseModel):
     yaw_track: list[list[float]] = Field(default_factory=list)     # [[t_local, yaw, pitch]] 360 subject heading
     # generated clip (no source file): {"type": "terminal_hud", "lines": [...], ...}; duration = out - in_ (set by the planner)
     generated: dict | None = None
+    # vertical reframe decided once per shot (vcut.reframe): {"mode": follow|fit_blur|fit_bars|crop, "track": [[t, x]],
+    # "width": window fraction, "method", "reason"}; None = legacy behaviour (edl.reframe)
+    reframe: dict | None = None
+
+    def reframe_mode(self) -> str:
+        return str((self.reframe or {}).get("mode") or "")
 
     @property
     def src_duration(self) -> float:
@@ -264,7 +270,8 @@ class Clip(BaseModel):
     def uses_engine(self) -> bool:
         """True when the clip needs the frame-level v2 engine (else the fast pure-ffmpeg path)."""
         return bool(self.generated or self.projection == "equirect" or (self.move and self.move.type not in ("", "none")) or self.fx
-                    or self.ramp or self.freeze or self.pip or self.focus_track)
+                    or self.ramp or self.freeze or self.pip or self.focus_track
+                    or self.reframe_mode() in ("follow", "fit_blur", "fit_bars"))
 
     def out_to_src(self, t_out: float) -> float:
         """Clip-local output time → source time (absolute, seconds)."""
@@ -367,6 +374,7 @@ class EDL(BaseModel):
     lut: str = ""
     letterbox: bool = False
     reframe: str = "auto"
+    reframe_vertical: str = "smart"   # smart | fit_blur | fit_bars | crop (wide source → tall output; see vcut.reframe)
     subtitle_style: dict = Field(default_factory=dict)
     title_style: dict = Field(default_factory=dict)
     clips: list[Clip] = Field(default_factory=list)

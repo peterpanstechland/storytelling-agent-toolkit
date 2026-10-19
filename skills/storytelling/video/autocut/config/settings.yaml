@@ -68,7 +68,7 @@ render:
   audio_bitrate: 192k
   loudness_lufs: -14
   subtitles: burn              # burn（烧录）| sidecar（只出 .srt）| both
-  reframe: auto                # auto | crop | blur_pad | pad   （横转竖时的处理）
+  reframe: auto                # auto | crop | blur_pad | pad   （画幅不一致且未走下面 reframe.vertical 时的处理）
   fx: true                     # v2 特效引擎（运镜/特效/自定义转场/360 重构图）；false 或 `autocut render --no-fx` 关闭
   equirect_width: 5760         # 360 全景解码上限宽度（越大越清晰越慢；预览 --quick 用 2880）
   fx_threads: 0                # 特效引擎 OpenCV 线程数，0 = 自动
@@ -102,3 +102,14 @@ music:
 jianying:
   # 为空时自动用 %LOCALAPPDATA%\JianyingPro\User Data\Projects\com.lveditor.draft
   drafts_dir: ""
+
+# 横屏素材 → 竖屏成片（16:9 → 9:16）的重构图，每个镜头只决定一次、镜头内不切换
+reframe:
+  vertical: smart        # smart（默认：主体放得进竖屏窗口就平滑跟随，否则整幅+模糊背景）| fit_blur | fit_bars | crop（旧：紧裁切）
+  loose: 1.25            # 跟随窗口 = 9:16 宽度 × loose（>1 更宽松，上下少量模糊填充）
+  fit_zoom: 1.0          # fit_blur 时画面轻微放大（1.0–1.15）
+  dead_zone: 0.12        # 主体偏离窗口中心超过窗口宽度的这个比例才移动（防抖）
+  sample_fps: 2.0
+  bg_blur: 0.06
+  bg_dim: 0.55
+

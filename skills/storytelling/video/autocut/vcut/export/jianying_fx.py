@@ -90,7 +90,16 @@ def move_keyframes(c, seg_dur: float, beats_local: list[float], W: int, H: int, 
     base = 1.0
     # portrait canvas with landscape source → fill height and pan to the subject
     canvas_ar = W / H
-    if src_ar and src_ar > canvas_ar * 1.05 and c.projection != "equirect":
+    rmode = c.reframe_mode() if hasattr(c, "reframe_mode") else ""
+    if rmode in ("fit_blur", "fit_bars") and c.projection != "equirect":
+        base = 1.0          # whole frame at canvas width; 剪映's own canvas blur / black fills the rest
+    elif rmode == "follow" and src_ar and c.projection != "equirect":
+        wn = float((c.reframe or {}).get("width") or 1.0)
+        base = max(1.0, 1.0 / max(wn, 1e-3))
+        for t, fx in [(k[0], k[1]) for k in (c.reframe or {}).get("track") or [[0.0, 0.5]]]:
+            off = max(-(base - 1), min(base - 1, (0.5 - fx) * 2 * base))
+            kf.append(("position_x", min(max(0.0, t), seg_dur - 0.01), round(off, 4)))
+    elif src_ar and src_ar > canvas_ar * 1.05 and c.projection != "equirect":
         base = src_ar / canvas_ar
         track = c.focus_track or [[0.0, c.focus_x, 0.5]]
         for t, fx, _fy in track[:: max(1, len(track) // 12)] + ([track[-1]] if len(track) > 1 else []):

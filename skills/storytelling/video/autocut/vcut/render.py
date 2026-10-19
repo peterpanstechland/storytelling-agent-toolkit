@@ -182,6 +182,10 @@ def write_ass(edl: EDL, path: Path, burn_subs: bool = True) -> Path:
     sub_size = int(base * float(ss.get("size", 0.05)))
     title_size = int(base * float(ts.get("size", 0.085)))
     margin_v = int(H * float(ss.get("margin_v", 0.07))) + bar
+    margin_lr = 60
+    if H > W:   # 9:16: keep captions above the platform UI (bottom ~15%) and clear of the right-side buttons
+        margin_v = max(margin_v, int(H * float(ss.get("safe_bottom", 0.16))))
+        margin_lr = max(margin_lr, int(W * 0.09))
     prim = ass_color(ss.get("primary", "#FFFFFF"))
     outl = ass_color(ss.get("outline", "#000000"))
     tprim = ass_color(ts.get("primary", "#FFFFFF"))
@@ -192,7 +196,7 @@ def write_ass(edl: EDL, path: Path, burn_subs: bool = True) -> Path:
     bold_t = -1 if ts.get("bold", True) else 0
     styles = [
         # Name, Font, Size, Primary, Secondary, Outline, Back, Bold, Italic, U, S, ScX, ScY, Sp, Ang, BorderStyle, Outline, Shadow, Align, ML, MR, MV, Enc
-        f"Style: Sub,{font},{sub_size},{prim},{prim},{outl},&H80000000,{bold_s},0,0,0,100,100,0,0,1,{ow:.1f},{ow * 0.4:.1f},2,60,60,{margin_v},1",
+        f"Style: Sub,{font},{sub_size},{prim},{prim},{outl},&H80000000,{bold_s},0,0,0,100,100,0,0,1,{ow:.1f},{ow * 0.4:.1f},2,{margin_lr},{margin_lr},{margin_v},1",
         f"Style: Title,{font},{title_size},{tprim},{tprim},&H90000000,&H90000000,{bold_t},0,0,0,100,100,2,0,1,{3 * base / 1080:.1f},{2 * base / 1080:.1f},5,80,80,0,1",
         f"Style: Section,{font},{int(title_size * 0.62)},{tprim},{tprim},{accent},&H90000000,{bold_t},0,0,0,100,100,1,0,1,{2 * base / 1080:.1f},0,8,80,80,{int(H * 0.08) + bar},1",
         f"Style: Lower,{font},{int(sub_size * 0.95)},&H00FFFFFF,&H00FFFFFF,{box},{box},{bold_t},0,0,0,100,100,0,0,3,{12 * base / 1080:.1f},0,1,{int(W * 0.05)},60,{int(H * 0.2) + bar},1",

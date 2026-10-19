@@ -76,6 +76,22 @@ Hand-tuning means editing `edl.json`, for example:
  "transition_in": {"type": "whip_left", "duration": 0.35}}
 ```
 
+## Vertical reframe (16:9 source → 9:16 output)
+
+`settings.yaml → reframe.vertical` (or `reframe_vertical` in `project.yaml`): `smart` (default) | `fit_blur` | `fit_bars` | `crop` (old tight centre/focus crop).
+`autocut plan` decides **once per shot** and stores it in `clip.reframe` (editable in `edl.json`):
+
+- `follow` (chosen by `smart` when a tracked subject — faces / people / motion / saliency peaks, the same detector chain as `tracker_hud` — fits the window in ≥80 % of samples):
+  a subject-following crop `loose` × the 9:16 width (default 1.25, so less is cut away than a tight cover), with a thin blurred fill top and bottom. The path uses a dead-zone,
+  Gaussian smoothing and a speed limit, so it does not jitter.
+- `fit_blur` (wide shots, spread-out content, no clear subject): the whole frame at the output width, centred over a blurred, darkened copy; `fit_zoom` adds a slight zoom.
+- `fit_bars`: the same with black bars.
+
+Camera moves, `lens_look` (`fit: cover` fills the picture band), `film_stock` and the other looks and `tracker_hud` run on the picture band itself, so HUD boxes and labels never land on the
+padding (the padding is built from the frame *before* the HUD). Transitions run on the composed frames. In 9:16 captions keep at least 16 % of the height from the bottom (`subtitle.safe_bottom`)
+and 9 % from the sides, clear of the platform buttons. 剪映 drafts: `fit_blur`/`follow` set 剪映's **canvas blur background** (`add_background_filling("blur")`); `follow` adds
+scale + position keyframes along the path; `fit_bars` keeps the default black canvas. Clips that are baked anyway (HUD, 360, ramps) carry the composed frame.
+
 ## ff-tracking look (tracker HUD, lens look, terminal card)
 
 Ported from [mrsarac/ff-tracking](https://github.com/mrsarac/ff-tracking) (MIT, © its author) as NumPy effects that work on real footage (16:9 and 9:16, CPU, GPU optional):
@@ -86,7 +102,7 @@ Ported from [mrsarac/ff-tracking](https://github.com/mrsarac/ff-tracking) (MIT, 
   corner brackets, a **lock moment** (`locks=[seconds]`: red box + flash + tear + aberration), then collapse to a "Done" pill. The planner puts the lock on the beat nearest the action peak.
 - **`terminal_hud` clip type** (generated, no footage): typed lines with a tracker on the newest glyphs, per-line camera presets, palette cycle, collapse → Done. Built from the project brief
   and inserted after the hook when `hud.terminal.enabled` is true. Needs Pillow for crisp text (falls back to OpenCV fonts).
-- **SFX**: keystroke ticks, pentatonic lock beep (panned), bit-crushed glitch per cut, hum, riser + chime + sub hit; the bed is normalised to −14 LUFS. 
+- **SFX**: keystroke ticks, pentatonic lock beep (panned), bit-crushed glitch per cut, hum, riser + chime + sub hit; the bed is normalised to −14 LUFS.
 - Style `tracker_hud` turns everything on; the `hud:` block is present but **off** in other styles. 剪映 cannot reproduce these effects, so HUD clips are baked into the exported clip.
 - CLI: `autocut preview <clip> --fx "lens_look:thermal,tracker_hud:label=Done;locks=1.4|2.6;mode=faces"`; `autocut fx` lists everything.
 

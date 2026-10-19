@@ -241,6 +241,8 @@ def apply_style_meta(edl: EDL, project: Project) -> None:
     edl.lut = str(lut)
     edl.letterbox = bool(style.get("letterbox")) and W > H
     edl.reframe = (config.settings().get("render") or {}).get("reframe", "auto")
+    from ..reframe import cfg as _rcfg
+    edl.reframe_vertical = _rcfg(pdata)["vertical"]
     edl.subtitle_style = dict(style.get("subtitle") or {})
     edl.title_style = dict(style.get("title") or {})
 

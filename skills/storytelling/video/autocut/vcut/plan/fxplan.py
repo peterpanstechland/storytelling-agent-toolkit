@@ -172,6 +172,48 @@ def _focus_track(edl: EDL, project: Project, c: Clip) -> None:
         c.note = (c.note + f" [主体构图:{res.get('method')}]").strip()
 
 
+def plan_vertical(edl: EDL, project: Project) -> dict:
+    """Set clip.reframe for flat wide sources in a tall frame. smart: follow if a subject fits, else fit_blur."""
+    from .. import reframe as RF
+    from ..media import probe
+
+    if edl.height <= edl.width:
+        return {}
+    c_ = RF.cfg(project.load())
+    mode = edl.reframe_vertical or c_["vertical"]
+    counts: dict = {}
+    for c in edl.clips:
+        if c.generated or c.projection == "equirect" or c.reframe:
+            continue
+        src = Path(c.src) if Path(c.src).is_absolute() else project.root / c.src
+        try:
+            w, h = probe(src).display_size
+        except Exception:  # noqa: BLE001
+            continue
+        if not RF.needs_vertical(w, h, edl.width, edl.height):
+            continue
+        wn = RF.window_frac(w, h, edl.width, edl.height, float(c_["loose"]))
+        if mode == "smart":
+            try:
+                res = RF.analyze_shot(src, c.in_, c.src_duration, w, h, edl.width, edl.height, c_, project.root / "cache")
+            except Exception as e:  # noqa: BLE001
+                res = {"mode": "fit_blur", "track": [], "width": wn, "method": "none", "reason": f"analysis failed: {e}"}
+            tr = res.get("track") or []
+            if c.speed != 1.0 or c.ramp or c.freeze:   # source-relative → clip-local output time
+                tr = [[round(c.src_to_timeline(c.in_ + t, 0.0), 3), x] for t, x in tr]
+            if tr and tr[0][0] > 0:
+                tr.insert(0, [0.0, tr[0][1]])
+            if tr and tr[-1][0] < c.duration:
+                tr.append([round(c.duration, 3), tr[-1][1]])
+            res["track"] = tr
+        else:
+            res = {"mode": mode, "track": [], "width": wn, "method": "config", "reason": "reframe.vertical"}
+        c.reframe = res
+        counts[res["mode"]] = counts.get(res["mode"], 0) + 1
+        c.note = (c.note + f" [竖屏:{res['mode']}]").strip()
+    return counts
+
+
 def _sfx(edl: EDL, project: Project, kind: str, t: float, vol: float, n: int, dur: float | None = None) -> None:
     from ..fx.sfx import get_sfx
     from ..edl import AudioItem
@@ -332,6 +374,10 @@ def plan_fx(edl: EDL, project: Project, style: dict, catalog: list[dict], marks:
                 continue
             edl.flashes.append([round(b, 3), round(float(bf.get("strength", 0.5)), 2)])
             last = b
+    # ---------------- vertical reframe (wide source → tall output), decided once per shot
+    nv = plan_vertical(edl, project)
+    if nv:
+        notes.append("竖屏重构图：" + "，".join(f"{k} {v} 个" for k, v in sorted(nv.items())) + "（reframe.vertical=" + edl.reframe_vertical + "）。")
     # ---------------- tracker HUD windows (after transitions are final: the lock sits on a beat / action peak)
     if hcfg:
         from .hudplan import plan_hud_sfx, plan_tracker_hud

@@ -276,6 +276,25 @@ def render_clip(project, edl: EDL, c: Clip, clip_start: float, out: Path, W: int
         bw = _even(min(dw, cap))
         bh = bw // 2
         geo = f"scale={bw}:{bh}:flags=bicubic"
+    from .. import reframe as RF
+    rmode = c.reframe_mode() if (not equirect and H > W and dw and dh) else ""
+    rmode = rmode if rmode in ("follow", "fit_blur", "fit_bars") else ""
+    rcf = RF.cfg() if rmode else {}
+    OW, OH = W, H                      # size of the picture the camera/effects work on (content band for fit/follow)
+    if rmode:
+        loose, fz_ = float(rcf["loose"]), float(rcf["fit_zoom"])
+        OW, OH = RF.content_size(rmode, dw, dh, W, H, loose, fz_)
+        if rmode == "follow":
+            wn = float((c.reframe or {}).get("width") or RF.window_frac(dw, dh, W, H, loose))
+            bw0, bh0 = _even(OW / wn), OH
+        else:
+            bw0, bh0 = _even(OW * (fz_ if rmode == "fit_blur" else 1.0)), OH
+        extra = 1.0
+        mv0 = c.move.type if c.move else "none"
+        if mv0 not in ("none", "subject") or any(f.type in CAMERA_FX for f in c.fx):
+            extra = 1.3
+        bw, bh = _even(bw0 * extra), _even(bh0 * extra)
+        geo = f"scale={bw}:{bh}:flags=bicubic"
     else:
         mode = edl.reframe
         sa, ta = (dw / dh if dh else 16 / 9), W / H
@@ -311,15 +330,15 @@ def render_clip(project, edl: EDL, c: Clip, clip_start: float, out: Path, W: int
         pi2 = probe(p2)
         d2w, d2h = pi2.display_size
         if c.pip.layout == "split_lr":
-            pw, ph = W - W // 2, H
+            pw, ph = OW - OW // 2, OH
         elif c.pip.layout == "split_tb":
-            pw, ph = W, H - H // 2
+            pw, ph = OW, OH - OH // 2
         else:
             ar2 = (d2h / d2w if d2w else 9 / 16) if c.pip.projection != "equirect" else 9 / 16
-            pw = _even(W * c.pip.scale) if W >= H else _even(W * c.pip.scale * 1.6)
+            pw = _even(OW * c.pip.scale) if OW >= OH else _even(OW * c.pip.scale * 1.6)
             ph = _even(pw * ar2)
-            if ph > H * 0.5:  # portrait source in a landscape frame → limit by height
-                ph = _even(H * 0.5)
+            if ph > OH * 0.5:  # portrait source in a landscape frame → limit by height
+                ph = _even(OH * 0.5)
                 pw = _even(ph / ar2)
         pip_size = (pw, ph)
         cover2 = f"scale={pw}:{ph}:force_original_aspect_ratio=increase,crop={pw}:{ph}"
@@ -353,9 +372,9 @@ def render_clip(project, edl: EDL, c: Clip, clip_start: float, out: Path, W: int
 
     # ---- per-clip state
     beats = _local_beats(edl, clip_start, dur_out)
-    fx_img = [(f, make_effect(f.type, W, H, fps, f.intensity, f.params, seed + i)) for i, f in enumerate(c.fx)
+    fx_img = [(f, make_effect(f.type, OW, OH, fps, f.intensity, f.params, seed + i)) for i, f in enumerate(c.fx)
               if f.type not in CAMERA_FX]
-    fx_img += [(f, make_effect(f.type, W, H, fps, f.intensity, f.params, seed + 50 + i)) for i, f in enumerate(edl.look)]
+    fx_img += [(f, make_effect(f.type, OW, OH, fps, f.intensity, f.params, seed + 50 + i)) for i, f in enumerate(edl.look)]
     fx_img = [(f, e) for f, e in fx_img if e is not None]
     fx_img.sort(key=lambda fe: HUD_ORDER.get(fe[0].type, 0))   # stable: lens_look, then tracker_hud last
     ctx = None
@@ -366,7 +385,7 @@ def render_clip(project, edl: EDL, c: Clip, clip_start: float, out: Path, W: int
         for f, _ in ctx_specs:
             merged.update({k: v for k, v in f.params.items() if k in CTX_KEYS})
         merged.setdefault("cuts", [])
-        ctx = TrackCtx(W, H, fps, dur_out, merged, beats=beats, seed=seed)
+        ctx = TrackCtx(OW, OH, fps, dur_out, merged, beats=beats, seed=seed)
         for _, e in ctx_specs:
             e.bind(ctx)
     punch = next((f for f in c.fx if f.type == "punch"), None)
@@ -383,7 +402,12 @@ def render_clip(project, edl: EDL, c: Clip, clip_start: float, out: Path, W: int
         cam = None
     else:
         shot = R = Rb = None
-        cam = Camera2D(mv, mparams, c.base_duration, W, H, bw, bh, focus_track=c.focus_track, focus_x=c.focus_x,
+        ftrack = c.focus_track
+        if rmode == "follow":
+            ftrack = [[t_, x_, 0.5] for t_, x_ in (c.reframe or {}).get("track") or []] or [[0.0, 0.5, 0.5]]
+        elif rmode:
+            ftrack = None
+        cam = Camera2D(mv, mparams, c.base_duration, OW, OH, bw, bh, focus_track=ftrack, focus_x=c.focus_x if not rmode else 0.5,
                        beats=punch_beats if punch else beats,
                        shake=(0.25 + 0.6 * shake.intensity) if shake else 0.0,
                        shake_beats=bool(shake and shake.params.get("on") == "beats"),
@@ -459,11 +483,11 @@ def render_clip(project, edl: EDL, c: Clip, clip_start: float, out: Path, W: int
                             from .camera2d import Cam
                             st = Cam(s0.cx + (s1.cx - s0.cx) * u, s0.cy + (s1.cy - s0.cy) * u,
                                      s0.zoom + (s1.zoom - s0.zoom) * u, s0.angle + (s1.angle - s0.angle) * u)
-                            f = cv2.warpAffine(base, cam.matrix(st), (W, H), flags=flags, borderMode=cv2.BORDER_REFLECT101).astype(np.float32)  # type: ignore[union-attr]
+                            f = cv2.warpAffine(base, cam.matrix(st), (OW, OH), flags=flags, borderMode=cv2.BORDER_REFLECT101).astype(np.float32)  # type: ignore[union-attr]
                             acc = f if acc is None else acc + f
                         frame = (acc / ns).astype(np.uint8)  # type: ignore[operator]
                     else:
-                        frame = cv2.warpAffine(base, cam.matrix(s0), (W, H), flags=flags, borderMode=cv2.BORDER_REFLECT101)  # type: ignore[union-attr]
+                        frame = cv2.warpAffine(base, cam.matrix(s0), (OW, OH), flags=flags, borderMode=cv2.BORDER_REFLECT101)  # type: ignore[union-attr]
                 if fz is not None and frozen is None and t + 1.0 / fps > fz.at:
                     frozen = frame.copy()
                     if in_hold:
@@ -474,9 +498,15 @@ def render_clip(project, edl: EDL, c: Clip, clip_start: float, out: Path, W: int
             # --- looks / effects
             if ctx is not None:
                 ctx.update(frame, i, t)
+            bg_src = None
             for spec, eff in fx_img:
+                if rmode and bg_src is None and spec.type == "tracker_hud":
+                    bg_src = frame          # padding is built from the picture *before* the HUD → no blurred boxes
                 env = _fx_env(spec, t, dur_out, beats)
                 frame = eff(frame, t, env)
+            if rmode:
+                frame = RF.compose(frame, W, H, rmode, frame if bg_src is None else bg_src,
+                                   float(rcf["bg_blur"]), float(rcf["bg_dim"]))
             enc.stdin.write(np.ascontiguousarray(frame).tobytes())  # type: ignore[union-attr]
         enc.stdin.close()  # type: ignore[union-attr]
     except BrokenPipeError:

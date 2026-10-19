@@ -198,6 +198,11 @@ def export_jianying(project: Project, edl: EDL, drafts_dir: Path | None = None, 
                 cc = c if not baked else c.model_copy(update={"move": None, "focus_track": []})
                 for prop, tk, val in move_keyframes(cc, d, bl, edl.width, edl.height, src_ar):
                     seg.add_keyframe(getattr(KeyframeProperty, prop), _us(max(0.0, min(tk, d - 0.001))), val)
+            if not baked and c.reframe_mode() in ("fit_blur", "follow"):
+                try:   # 剪映 画布模糊 (canvas blur background); only applies on the main video track
+                    seg.add_background_filling("blur", 0.375)
+                except Exception as e:  # noqa: BLE001
+                    notes.append(f"片段 {c.id} 无法设置画布模糊（{e}），剪映里会显示黑边。")
             segs.append((seg, c, k))
             t += d
     # clip intro/outro animations from the style (first clip of the film and of each section; last clip outro)
