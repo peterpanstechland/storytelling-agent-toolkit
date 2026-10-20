@@ -17,7 +17,7 @@ from pathlib import Path
 
 from . import config
 from .edl import EDL, RAMP_FACTOR, RAMP_SPLIT, XFADE, Clip
-from .media import FFmpegError, ffmpeg, kind_of, pick_encoder, probe, video_encode_args
+from .media import FFmpegError, ffmpeg, file_option, kind_of, pick_encoder, probe, video_encode_args
 from .project import Project
 from .util import info, ok, short_hash, warn
 
@@ -710,7 +710,7 @@ def render(project: Project, edl: EDL | None = None, *, out: Path | None = None,
     out.parent.mkdir(parents=True, exist_ok=True)
     tmp_out = out.with_name(out.stem + ".rendering.mp4")
     venc = video_encode_args(encoder, rcfg, fast=quick)
-    cmd = [*inputs, "-/filter_complex", script.name, "-map", "[vout]", "-map", "[aout]", *venc,
+    cmd = [*inputs, *file_option("filter_complex", script.name), "-map", "[vout]", "-map", "[aout]", *venc,
            "-r", str(fps), "-c:a", "aac", "-b:a", str(rcfg.get("audio_bitrate", "192k")),
            "-movflags", "+faststart", "-t", f"{total:.3f}", str(tmp_out)]
     try:

@@ -26,6 +26,34 @@ def ffmpeg_bin() -> str:
     return os.environ.get("VCUT_FFMPEG") or shutil.which("ffmpeg") or "ffmpeg"
 
 
+@lru_cache(maxsize=8)
+def ffmpeg_major(binary: str | None = None) -> int:
+    """Major version of the ffmpeg binary (0 if unknown; git/nightly builds count as new). Cached per binary."""
+    import re
+    b = binary or ffmpeg_bin()
+    try:
+        out = subprocess.run([b, "-hide_banner", "-version"], capture_output=True, timeout=20).stdout.decode("utf-8", "replace")
+    except Exception:  # noqa: BLE001
+        return 0
+    m = re.search(r"ffmpeg version\s+n?(\d+)\.", out)
+    if m:
+        return int(m.group(1))
+    return 99 if re.search(r"ffmpeg version\s+(N-|git-)", out) else 0
+
+
+def file_option(opt: str, path: str, major: int | None = None) -> list[str]:
+    """Read an option's value from a file. ffmpeg >= 7: `-/opt file`; older: the legacy `-opt_script file`
+    (only filter options have one), e.g. file_option("filter_complex", "graph.txt")."""
+    major = ffmpeg_major() if major is None else major
+    if major >= 7:
+        return [f"-/{opt}", str(path)]
+    legacy = {"filter_complex": "-filter_complex_script", "filter": "-filter_script", "vf": "-filter_script:v",
+              "af": "-filter_script:a", "filter:v": "-filter_script:v", "filter:a": "-filter_script:a"}
+    if opt not in legacy:
+        raise FFmpegError(f"ffmpeg {major or '?'} 不支持从文件读取 -{opt}（需要 ffmpeg 7+）")
+    return [legacy[opt], str(path)]
+
+
 def ffprobe_bin() -> str:
     return os.environ.get("VCUT_FFPROBE") or shutil.which("ffprobe") or "ffprobe"
 
