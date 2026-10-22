@@ -20,7 +20,7 @@ def command_output(arguments):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--require", choices=("render", "inspect", "audio", "transcribe"),
+    parser.add_argument("--require", choices=("render", "inspect", "audio", "transcribe", "autocut"),
                         default="render", help="capability that determines the exit status")
     parser.add_argument("--model", type=Path, help="optional existing local faster-whisper directory")
     args = parser.parse_args()
@@ -55,19 +55,32 @@ def main():
         checks["cjk_font"] = {"ok": "CJK" in family or "SC" in family, "family": family.strip()}
     else:
         checks["cjk_font"] = {"ok": False, "note": "Verify CJK glyph coverage in rendered frames."}
+    # autocut (project-based auto edit, video/autocut): optional extra packages, never required by other commands
+    core = {"typer": "typer", "rich": "rich", "pyyaml": "yaml", "pydantic": "pydantic", "httpx": "httpx",
+            "numpy": "numpy", "opencv": "cv2"}
+    optional = {"pyJianYingDraft": "pyJianYingDraft", "scenedetect": "scenedetect", "librosa": "librosa",
+                "soundfile": "soundfile", "onnxruntime": "onnxruntime"}
+    missing_core = [name for name, module in core.items() if importlib.util.find_spec(module) is None]
+    checks["autocut_core"] = {"ok": not missing_core, "missing": missing_core,
+                              "install": "python -m pip install -r video/requirements-autocut.txt"}
+    checks["autocut_optional"] = {name: importlib.util.find_spec(module) is not None for name, module in optional.items()}
+    checks["v360"] = {"ok": bool(re.search(r"\bv360\s+", filters))}
     base = checks["ffmpeg"]["ok"] and checks["ffprobe"]["ok"]
     capabilities = {
         "render": base and checks["libx264"]["ok"] and checks["aac"]["ok"],
         "inspect": base and checks["Pillow"]["ok"],
         "audio": base and checks["aac"]["ok"] and checks["alimiter"]["ok"] and checks["sidechaincompress"]["ok"],
         "transcribe": base and checks["faster-whisper"]["ok"] and checks["local_asr_model"]["ok"],
+        "autocut": base and checks["autocut_core"]["ok"] and checks["libx264"]["ok"],
     }
     ready = capabilities[args.require]
     print(json.dumps({"status": "ready" if ready else "incomplete", "requested": args.require,
                       "python": sys.executable, "capabilities": capabilities, "checks": checks,
                       "notes": ["Caption burn-in additionally requires subtitles/libass and suitable fonts.",
                                 "A present ASR directory is a structural check, not an inference test.",
-                                "Voice generation providers and models are not bundled or checked here."]},
+                                "Voice generation providers and models are not bundled or checked here.",
+                                "autocut needs requirements-autocut.txt; its optional extras only add features "
+                                "(Jianying export, beat sync, YOLO tracking). Run `video/run autocut doctor` for details."]},
                      ensure_ascii=False, indent=2))
     return 0 if ready else 1
 

@@ -1,0 +1,89 @@
+# 设备清单（可随时增删）。借来的设备归还后把 available 改成 false，拍摄清单就不会再推荐它。
+# 识别规则（越具体分越高）：
+#   tags     : 在 ffprobe 的容器/流元数据（make/model/encoder/handler 等）里搜索的关键字（不区分大小写）
+#   make     : 厂商关键字（如 Insta360 / Meta / HONOR）
+#   filename : 文件名正则（Python re，匹配文件名本身）
+#   ext      : 扩展名
+#   resolution: 分辨率 "宽x高"（辅助判断，如眼镜的竖屏 1392x1872）
+# 不确定时用 `autocut probe <文件>` 看一下实际元数据，再把关键字补进来。
+# kind 取值：360 | action | pocket | glasses | phone   （拍摄清单按 kind 推荐设备）
+devices:
+  - id: x5
+    label: Insta360 X5
+    kind: "360"
+    available: true
+    match:
+      ext: [".insv", ".lrv"]
+      tags: ["X5", "Insta360 X5"]
+      make: ["Insta360"]
+      filename: ['^(VID|LRV)_\d{8}_\d{6}_\d{2}_\d{3}.*\.(insv|lrv)$']
+    strengths: [establishing, selfie, crowd, transition]
+    tips: "360° 全景：隐形自拍杆跟拍、第三人称、环境建立镜头、穿梭转场。推荐在 Insta360 Studio 导出 2:1 全景 MP4 再导入（可自动运镜）；原始 .insv 可用 autocut x5-stitch 应急拼接。"
+
+  - id: ace_pro_2
+    label: Insta360 Ace Pro 2
+    kind: action
+    available: true
+    match:
+      tags: ["Ace Pro 2", "AcePro2", "ACE PRO 2"]
+      make: ["Insta360"]
+      filename: ['^PRO_(VID|LRV)_\d{8}_\d{6}.*']
+    strengths: [action, establishing, crowd, broll]
+    tips: "运动/夜景/低光强；8K/4K120 适合慢动作；PRO_LRV_ 开头是低码率代理文件，不用导入。"
+
+  - id: go_ultra
+    label: Insta360 GO Ultra
+    kind: pocket
+    available: true
+    match:
+      tags: ["GO Ultra", "GOUltra", "GO ULTRA"]
+      make: ["Insta360"]
+      filename: ['^VID_\d{8}_\d{6}_\d{2}_\d{3}\.mp4$']
+    strengths: [pov, build, detail]
+    tips: "拇指相机：磁吸挂胸前/帽檐拍第一视角，焊接、装配等手部特写；放进狭小空间拍特殊视角。"
+
+  - id: rayban_meta
+    label: Ray-Ban Meta 智能眼镜
+    kind: glasses
+    available: true
+    match:
+      # 容器元数据 comment 里含 device=Ray-Ban Meta Smart Glasses
+      tags: ["Ray-Ban Meta", "Meta Smart Glasses"]
+      make: ["Meta"]
+      resolution: ["1392x1872", "1872x1392"]
+    strengths: [pov, hands_on, walking, selfie]
+    tips: "第一视角（竖屏 1392x1872，高帧率可做慢动作）：走路、上手操作、逛展的真实视角；广角偏窄、麦克风靠近自己，注意环境声；横屏成片时用主体构图/模糊填充处理竖屏素材。"
+
+  - id: iphone
+    label: iPhone
+    kind: phone
+    available: true
+    match:
+      tags: ["com.apple.quicktime.model", "iPhone"]
+      make: ["Apple"]
+      filename: ['^IMG_\d{4}\.MOV$']
+    strengths: [talking_head, detail, product, screen]
+    tips: "口播和产品特写主力；注意锁定曝光/对焦，外接麦克风。"
+
+  - id: android_phone
+    label: 安卓手机（通用）
+    kind: phone
+    available: true
+    match:
+      tags: ["PJD110", "CPH2581", "OnePlus 12"]   # 例：把自己常用的机型代号补进来
+      make: ["OnePlus", "Xiaomi", "Samsung", "Google", "OPPO", "vivo"]
+      filename: ['^VID_?\d{8,14}.*\.mp4$']
+    strengths: [talking_head, detail, product, screen]
+    tips: "口播、微距细节、产品特写。把自己常用的机型关键字补进 tags，识别会更准。"
+
+  # 例：荣耀 Robot Phone。普通的配置条目；借来的设备归还后把 available 改成 false。
+  - id: honor_robot
+    label: 荣耀 Robot Phone
+    kind: phone
+    available: true
+    match:
+      tags: ["Robot Phone"]
+      make: ["HONOR", "Honor"]
+      filename: []
+    strengths: [talking_head, selfie, product]
+    tips: "云台/跟随能力适合自动跟拍口播、走动 vlog。"

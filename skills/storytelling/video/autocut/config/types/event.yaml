@@ -1,0 +1,24 @@
+id: event
+name: 活动视频
+description: 自愿参加的展会/聚会/比赛/分享会记录：高光开场 → 到场与环境 → 活动内容 → 人与交流 → 感受总结。
+defaults: {duration: 120, aspect: "16:9", style: energetic, platforms: [B站, 小红书]}
+voiceover: true
+sections:
+  - {id: hook, name: 开场高光, ratio: 0.08, categories: [crowd, action, demo, product], pick: best, voice: false, text: "{title}"}
+  - {id: arrival, name: 到场与环境, ratio: 0.14, categories: [establishing, selfie, logo], pick: chronological, voice: false, lower_third: "{event_name} · {event_location}"}
+  - {id: intro, name: 口播·今天来干嘛, ratio: 0.12, categories: [talking_head, selfie], pick: speech, voice: true}
+  - {id: content, name: 活动内容, ratio: 0.32, categories: [demo, product, crowd, detail, action, broll], pick: chronological, voice: false}
+  - {id: people, name: 交流与采访, ratio: 0.18, categories: [interview, talking_head, crowd], pick: speech_or_best, voice: true}
+  - {id: outro, name: 感受总结, ratio: 0.16, categories: [talking_head, selfie, establishing], pick: speech_or_best, voice: true, text: "{cta}"}
+cta: "你最想看哪个展台？评论区告诉我"
+shots:
+  - {id: venue_wide, section: arrival, name: 场馆外景/建立镜头, category: establishing, devices: ["360", action], min_seconds: 10, required: true, keywords: [场馆, 外景, 门口, 环境], desc: "到场先拍场馆外观、指示牌、入口人流。X5 隐形自拍杆走进去一条。"}
+  - {id: signage, section: arrival, name: 活动主视觉/签到处, category: logo, devices: [phone], min_seconds: 5, required: true, keywords: [logo, 海报, 签到, 主视觉], desc: "活动名称/主视觉背景板/胸牌特写，后期用来交代活动名。"}
+  - {id: selfie_open, section: intro, name: 自拍开场口播, category: talking_head, devices: [phone, "360"], min_seconds: 15, required: true, keywords: [口播, 自拍], desc: "在场馆门口对镜头说：今天在哪、来看什么、为什么来。"}
+  - {id: crowd, section: content, name: 现场氛围/人群, category: crowd, devices: ["360", action], min_seconds: 15, required: true, keywords: [人群, 现场, 氛围], desc: "高处俯拍人群、热闹的展台、掌声欢呼。"}
+  - {id: booth_detail, section: content, name: 展品/作品特写, category: detail, devices: [phone, pocket], min_seconds: 20, required: true, keywords: [展品, 作品, 特写], desc: "感兴趣的展品逐个拍特写，记得拍铭牌。"}
+  - {id: hands_on, section: content, name: 上手体验第一视角, category: pov, devices: [pocket, glasses], min_seconds: 15, required: false, keywords: [体验, 上手, 第一视角], desc: "GO Ultra 挂胸前拍自己上手玩、操作的过程。"}
+  - {id: stage, section: content, name: 舞台/分享环节, category: action, devices: [action, phone], min_seconds: 15, required: false, keywords: [舞台, 演讲, 分享], desc: "演讲/表演的关键片段（注意版权与肖像）。"}
+  - {id: interview, section: people, name: 与人交流/简短采访, category: interview, devices: [phone, "360"], min_seconds: 20, required: false, keywords: [采访, 交流, 对话], desc: "问参展者/朋友一两个问题，提前征得同意。"}
+  - {id: summary_talk, section: outro, name: 结束感受口播, category: talking_head, devices: [phone], min_seconds: 15, required: true, keywords: [总结, 感受, 口播], desc: "离场时说 2~3 句感受和推荐。"}
+  - {id: leave, section: outro, name: 离场空镜, category: establishing, devices: ["360", action], min_seconds: 6, required: false, keywords: [离开, 夜景, 结尾], desc: "离场背影、夜景、路上，适合当结尾画面。"}

@@ -1,0 +1,63 @@
+id: tech_minimal
+name: 科技感/极简
+aliases: [科技感, 极简, tech, minimal]
+description: 冷色调、干净利落、信息清晰，适合 Maker 项目和科技类商单。
+pacing: {avg_shot: 2.4, min_shot: 1.0, max_shot: 4.5, hook_shot: 0.9}
+transitions:
+  within: [cut, cut, cut, fade]      # 段落内部轮换
+  section: [fadeblack, slideleft, smoothleft]   # 段落之间
+  duration: 0.35
+effects:
+  zoom_prob: 0.25          # B-roll 加缓慢推拉（Ken Burns）的比例
+  speed_ramp: false
+subtitle: {size: 0.048, primary: "#FFFFFF", outline: "#101820", outline_w: 2.5, bold: false, margin_v: 0.07}
+title: {size: 0.085, primary: "#FFFFFF", accent: "#3DD6F5", bold: true}
+color:
+  filter: "eq=contrast=1.06:saturation=0.92:gamma=0.98,colorbalance=bs=0.04:bm=0.02"
+  lut: ""                   # 可填 .cube LUT 路径
+music: {mood: [电子, 科技, 轻快, minimal, electronic], volume: 0.2}
+# ---- v2：运镜 / 特效 / 音效 / 文字动画 调色板 ----
+motion:
+  intensity: 0.5
+  move_prob: 0.55
+  moves_2d:
+    default: [push_in, pan]
+    product: [push_in, pull_out]
+    screen: [push_in]
+    talking_head: [subject]
+  punch: {prob: 0.25, at: downbeats, every: 1, roles: [product, build, detail]}
+  shake: 0.0
+  moves_360: {hook: planet_intro, establishing: orbit, selfie: hero, default: follow}
+  whip360: true
+  ramp: {prob: 0.0}
+  freeze: {prob: 0.3, max: 2, callout: true}
+  pip: true
+fx:
+  look: []
+  accents: [rgb_split]
+  accent_prob: 0.2
+  accent_dur: 0.3
+  peak: []
+  beat_flash: {at: none}
+hud:   # ff-tracking 风格 HUD（MIT 移植）。默认关闭以保持原有输出：tracker.prob 调到 0.3~0.6、terminal.enabled 改 true 即启用；整套预设见 style tracker_hud
+  tracker:
+    prob: 0.0
+    roles: [product, detail, screen, build, demo]
+    min_dur: 2.0
+    max_clips: 2
+    mode: auto
+    lock: peak
+    collapse: false
+    lens: {palette: mono, palette_mix: 0.45, dof: 0.6, bloom: 0.4, led: 0.3}
+  terminal: {enabled: false, position: after_hook, only_types: [maker], done: Done}
+  sfx: true
+sfx: {transition: swish, custom_transition: whoosh, section: [whoosh], flash: "", glitch: glitch, freeze: pop, volume: 0.4}
+text_anims: {title: highlight_box, section: slide_up, lower_third: highlight_box, cta: pop, callout: pop, subtitle: ""}
+progress: {enabled: true, color: "#3DD6F5", height: 6}
+jianying:
+  transition: 叠化
+  filter: 冷蓝
+  filter_intensity: 50
+  intro: 渐显
+  text_intro: 向上滑动
+  scene_effects: {rgb_split: 色差, glitch: 故障}

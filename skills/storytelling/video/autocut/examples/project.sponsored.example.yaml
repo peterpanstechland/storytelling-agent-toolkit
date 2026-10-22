@@ -1,0 +1,47 @@
+# 商单项目 project.yaml 填写示例（autocut new 生成后按这个格式补充）
+name: ACME智能门锁体验
+type: sponsored
+type_name: 商单活动/体验
+title: 我把门锁换成了会认人的锁
+theme: ACME X9 智能门锁上手体验
+target_duration: 60
+aspect: "9:16"
+fps: 30
+platforms: [抖音, 小红书]
+style: energetic          # 科技感 tech_minimal / 活力快剪 energetic / 电影感 cinematic / 温暖日常 warm_daily
+language: zh
+backend: ""               # 空 = 用全局设置；也可单独指定 dashscope / gemini / ollama / none
+voiceover:
+  enabled: true
+  script: |
+    1. 钩子：出门再也不用找钥匙
+    2. 我是小明，今天体验 ACME X9
+    3. 卖点：3D 人脸识别、续航 12 个月、一键远程开门
+    4. 结尾：点击左下角了解更多
+music:
+  mood: [科技, 动感]
+  file: ""                # 指定配乐文件（相对项目目录），空 = 自动从 audio/music 或曲库挑
+  volume: null            # 空 = 按风格
+  beat_sync: null         # 空 = 按风格（活力快剪默认卡点）
+subtitles: true
+cta: ""
+notes: 品牌方要求不出现竞品
+sponsor:
+  brand: ACME
+  product: ACME X9 智能门锁
+  campaign: 双十一
+  must_show: [包装开箱, 人脸识别开门, App 远程开门界面, 品牌 Logo]
+  key_messages: [3D 人脸识别 0.5 秒开门, 续航 12 个月, 一键远程开门]
+  forbidden: [竞品品牌, 价格对比]
+  logo: assets/acme_logo.png
+  logo_position: top_right
+  duration: 60
+  platform: [抖音]
+  deadline: "2026-11-01"
+  cta: 点击左下角了解更多
+  hashtags: ["#智能家居", "#ACME"]
+  notes: 结尾 Logo 落版 2 秒
+event:
+  name: ""
+  date: ""
+  location: ""
