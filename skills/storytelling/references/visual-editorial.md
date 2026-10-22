@@ -24,6 +24,12 @@ Retain editable HTML/JSON/source and a text version for accessibility, search an
 
 The optional [capture_web.mjs](../scripts/capture_web.mjs) helper captures locally authored pages; [motion-scene.html](../templates/motion-scene.html) provides a deterministic motion scene. Read [web-capture.md](web-capture.md) and inspect the helper's `--help` before use. These are rendering tools, not evidence generators or proof of platform acceptance.
 
+## Pixel-art illustrations
+
+When an icon, character, diagram or looping insert should be pixel art, use the sibling [pxl](../../pxl/SKILL.md) skill. It renders PNG, GIF and sprite-sheet JSON from a `.px.js` file with Node ≥ 22.18 and no runtime install. Write that source and its `--out` directory in the user's project, not into the skill folder.
+
+Copy a finished PNG into the card JSON directory before using it as a `photo-overlay` image, or attach it as an article figure. A GIF can be the animated insert described above; it has no soundtrack. Call the result an illustration unless the pixels are the user's own observed art. Reference images next to [CREDITS.md](../../pxl/examples/tropical/refs/CREDITS.md) are CC-BY; keep that credit if you reuse them.
+
 ## Portable card renderer
 
 Run from the skill directory (the folder containing `SKILL.md`), including when this folder has been copied into another agent's skills directory:

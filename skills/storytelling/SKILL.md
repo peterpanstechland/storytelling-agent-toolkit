@@ -14,7 +14,7 @@ Identify the intended audience, central question, source material, destination a
 Read only the relevant route:
 
 - Narrative, research and scripts: [story design](references/story-design.md).
-- Illustrated prose, overlays, long images, GIFs and carousels: [visual editorial](references/visual-editorial.md).
+- Illustrated prose, overlays, long images, GIFs and carousels: [visual editorial](references/visual-editorial.md). Pixel-art sprites, scenes, sheets and GIFs come from the sibling skill [pxl](../pxl/SKILL.md); use its PNG and GIF files as card art, article figures, or a video title card or insert.
 - Adapt one story for different audiences/channels: [adaptation](references/adaptation.md).
 - Footage, narration, authorized voice cloning, subtitles and audio: [video production](references/video-production.md).
 - Many clips from several devices, a shot list before shooting, missing-shot reminders, a styled rough cut with camera moves/effects, 360 footage or a 剪映 draft: [auto edit](references/auto-edit.md) (details of moves and effects: [moves and effects](references/auto-edit-effects.md); effect-source licences: [fx-sources](references/fx-sources.md)). For a handful of clips with decided cuts, use `render` from the video guide instead.

@@ -6,8 +6,13 @@ import subprocess
 import sys
 from pathlib import Path
 
-TEXT_EXTENSIONS = {'.py','.mjs','.js','.json','.md','.txt','.toml','.yaml','.yml','.html','.css','.sh'}
-TEXT_NAMES = {'LICENSE','.gitignore','run','AGENTS.md'}
+TEXT_EXTENSIONS = {'.py','.mjs','.js','.ts','.json','.md','.txt','.toml','.yaml','.yml','.html','.css','.sh','.hex'}
+TEXT_NAMES = {'LICENSE','.gitignore','.gitattributes','run','AGENTS.md'}
+# Upstream pxl ships generated gallery/study clips and CC-BY reference sprites.
+# They are example art, not private media. See NOTICE.md.
+PXL_MEDIA_PREFIX = 'skills/pxl/'
+PXL_MEDIA_EXTENSIONS = {'.png','.gif'}
+PXL_MEDIA_MAX = 6_000_000
 FORBIDDEN_PARTS = {'node_modules','.venv','venv','__pycache__','models','checkpoints','outputs','media','receipts','.sessions','.aws','.ssh'}
 PATTERNS = {
  'GitHub token': re.compile(r'\b(?:gh[pousr]_[A-Za-z0-9]{25,}|github_pat_[A-Za-z0-9_]{30,})\b'),
@@ -28,6 +33,10 @@ def findings(root, files):
         if any(part in FORBIDDEN_PARTS for part in rel.parts):errors.append((str(rel),'runtime/media directory'))
         if p.name.startswith('.env') or re.search(r'(?:credentials|session|cookies|token-store)',p.name,re.I):
             errors.append((str(rel),'credential/session filename'))
+        pxl_media = str(rel).startswith(PXL_MEDIA_PREFIX) and p.suffix.lower() in PXL_MEDIA_EXTENSIONS
+        if pxl_media:
+            if p.stat().st_size>PXL_MEDIA_MAX:errors.append((str(rel),'pxl example art exceeds size budget'))
+            continue
         if p.suffix.lower() not in TEXT_EXTENSIONS and p.name not in TEXT_NAMES:
             errors.append((str(rel),'not an approved source-text extension'))
         if p.stat().st_size>512_000:errors.append((str(rel),'file exceeds code-only size budget'))
@@ -57,5 +66,5 @@ def main():
     problems=findings(root,files)
     for file,reason in problems:print(f'ERROR {file}: {reason}',file=sys.stderr)
     if problems:return 1
-    print(f'PASS: {len(files)} source-text files; no bundled media, models, sessions, common secrets or machine-specific paths.');return 0
+    print(f'PASS: {len(files)} files; no private media, models, sessions, common secrets or machine-specific paths.');return 0
 if __name__=='__main__':raise SystemExit(main())

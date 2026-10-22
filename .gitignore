@@ -42,6 +42,9 @@ checkpoints/
 *.png
 *.gif
 *.webp
+# Upstream pxl example art (gallery, study clips, CC-BY refs). See NOTICE.md.
+!skills/pxl/**/*.png
+!skills/pxl/**/*.gif
 *.pdf
 *.docx
 *.zip
