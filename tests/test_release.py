@@ -14,4 +14,16 @@ class ReleaseTests(unittest.TestCase):
  def test_clean_text_passes(self):
   with tempfile.TemporaryDirectory() as d:
    p=Path(d);(p/'guide.md').write_text('Portable storytelling.');self.assertEqual(release.findings(p,['guide.md']),[])
+ def test_pxl_example_art_is_allowed_and_other_images_are_not(self):
+  with tempfile.TemporaryDirectory() as d:
+   p=Path(d)
+   gif=p/'skills/pxl/docs/gallery/cat.gif'
+   gif.parent.mkdir(parents=True)
+   gif.write_bytes(b'GIF89a'+bytes([255,0,1]))
+   self.assertEqual(release.findings(p,['skills/pxl/docs/gallery/cat.gif']),[])
+   (p/'clip.png').write_bytes(b'\x89PNG\r\n\x1a\n')
+   self.assertTrue(any(reason=='not an approved source-text extension' for _,reason in release.findings(p,['clip.png'])))
+   huge=p/'skills/pxl/docs/gallery/huge.gif'
+   huge.write_bytes(b'GIF89a'+b'\x00'*(release.PXL_MEDIA_MAX))
+   self.assertTrue(any('size budget' in reason for _,reason in release.findings(p,['skills/pxl/docs/gallery/huge.gif'])))
 if __name__=='__main__':unittest.main()

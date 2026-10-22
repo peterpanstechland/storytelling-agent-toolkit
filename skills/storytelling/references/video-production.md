@@ -204,6 +204,12 @@ pass and verify the encoded output. Mono-to-stereo conversion changes loudness
 depending on the pan law; do not assume copying a sample into two channels
 preserves LUFS.
 
+## Pixel-art title cards and inserts
+
+The sibling [pxl](../../pxl/SKILL.md) skill writes PNG stills, GIFs and sprite sheets from `.px.js`. Keep those files in the user's project (`--out`), outside this skill.
+
+This edit plan has clip sources and no separate overlay track. A GIF that ffprobe reports with a finite duration can be a `clips[].source` for a title card or a short insert; set `in` and `out` inside that duration. A still PNG has no duration in this renderer, so it is not a clip. To hold a still, author a short pxl animation or GIF, or place the PNG in a local HTML page and export a clip with [web capture](web-capture.md). Leave sprite-sheet JSON beside the sheet for a game or a later composite. Do not describe that sheet as already composited onto footage. Label generated pixel art as illustration unless it is the user's observed asset.
+
 ## Review, revisions and release
 
 Check opening, cuts, original-speech boundaries, peak effects, titles, subtitle
