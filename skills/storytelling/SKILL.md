@@ -1,6 +1,6 @@
 ---
 name: storytelling
-description: Turn source material into evidence-grounded illustrated articles, social posts, image carousels and narrated videos, then prepare or publish the requested platform edition. Use for end-to-end storytelling and revisions, including footage editing, graphics, narration and creator-platform handoff.
+description: Turn source material into evidence-grounded illustrated articles, social posts, image carousels and narrated videos, then prepare or publish the requested platform edition. Use for end-to-end storytelling and revisions, including footage editing, project-based auto-editing of multi-device footage (shot lists, gap reminders, styled rough cuts, 360 camera moves, Jianying drafts), graphics, narration and creator-platform handoff.
 ---
 
 # Storytelling
@@ -14,9 +14,10 @@ Identify the intended audience, central question, source material, destination a
 Read only the relevant route:
 
 - Narrative, research and scripts: [story design](references/story-design.md).
-- Illustrated prose, overlays, long images, GIFs and carousels: [visual editorial](references/visual-editorial.md).
+- Illustrated prose, overlays, long images, GIFs and carousels: [visual editorial](references/visual-editorial.md). Pixel-art sprites, scenes, sheets and GIFs come from the sibling skill [pxl](../pxl/SKILL.md); use its PNG and GIF files as card art, article figures, or a video title card or insert.
 - Adapt one story for different audiences/channels: [adaptation](references/adaptation.md).
 - Footage, narration, authorized voice cloning, subtitles and audio: [video production](references/video-production.md).
+- Many clips from several devices, a shot list before shooting, missing-shot reminders, a styled rough cut with camera moves/effects, 360 footage or a 剪映 draft: [auto edit](references/auto-edit.md) (details of moves and effects: [moves and effects](references/auto-edit-effects.md); effect-source licences: [fx-sources](references/fx-sources.md)). For a handful of clips with decided cuts, use `render` from the video guide instead.
 - Shot language, cinematic openings, motion graphics, VFX and color: [cinematic language](references/cinematic-language.md).
 - A film built in code, a motion-graphics style, karaoke word timing or a beat-locked character: [code video](references/code-video.md). Surveyed repositories and what was copied: [fx sources](references/fx-sources.md).
 - Upload, draft, publish and verify: [publishing](references/publishing.md).
@@ -40,7 +41,8 @@ Commands below are relative to this skill folder. Run `--help` before an unfamil
 - `python scripts/render_cards.py <cards.json> --output <new-directory>`: render actual PNG cards with measured text layout; requires Pillow and a suitable font.
 - `node scripts/capture_web.mjs ...`: optional local-page screenshots, long-image slices and deterministic web-animation export. See its `--help` and [web capture](references/web-capture.md). `templates/character-beat.html` is a beat-locked character page.
 - `python codevideo/styles.py find <query>`: search vendored code-film and motion-graphics briefs. `python codevideo/karaoke.py <lyrics.json> --output <new-directory>` writes karaoke cues and an ASS file from timings you supply. `python codevideo/looks.py <image> --output <new.png>` grades a title card. `python codevideo/catalog.py` filters the external code-video index. Details and licences: [code video](references/code-video.md).
-- `python video/run doctor`: inspect video capabilities. Use `inspect`, `transcribe`, `render`, `narrate`, `mix` as described in the video guide. Models are selected externally, not included.
+- `python video/run doctor`: inspect video capabilities (`--require autocut` for the auto-edit package). Use `inspect`, `transcribe`, `render`, `narrate`, `mix` as described in the video guide. Models are selected externally, not included.
+- `python video/run autocut --help`: project-based auto edit (`new`, `shotlist`, `ingest`, `analyze`, `gaps`, `plan`, `render`, `draft`, `preview`, `x5-stitch`) plus bridges to the tools above (`export-edit`, `import-edit`, `import-index`, `import-transcript`, `import-narration`). Needs `video/requirements-autocut.txt`; the other commands do not. Its plans are reviewable rough cuts: story, identity, brand and fact checks still follow this skill.
 - `python publishing/wechat.py --help`: official-account API adapter. Local preview, remote media upload, draft creation and publication are separate operations.
 
 No footage, voice samples, music, model weights, official logos, platform sessions or API keys ship with this skill. Text-only examples are demonstrations. Obtain project assets and credentials through the user's authorized environment. Use a host's native image/voice generation tools when available; do not claim a provider is installed simply because the guide mentions it.

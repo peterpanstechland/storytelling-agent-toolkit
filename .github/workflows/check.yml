@@ -15,6 +15,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg fonts-noto-cjk
           python -m pip install Pillow
+          # autocut tests: core requirements plus the 剪映 exporter; other optional extras are skipped cleanly
+          python -m pip install -r skills/storytelling/video/requirements-autocut.txt "pyJianYingDraft>=0.3.0,<0.4"
       - name: Unit and real media smoke tests
         env:
           PYTHONDONTWRITEBYTECODE: '1'
@@ -23,3 +25,19 @@ jobs:
         run: python scripts/check_release.py --tracked
       - name: Validate optional web renderer syntax
         run: node --check skills/storytelling/scripts/capture_web.mjs
+  pxl:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: skills/pxl
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pxl dev dependencies
+        run: npm ci
+      - name: Typecheck and test pxl
+        run: npm run check
+      - name: Build one example outside the skill tree
+        run: node bin/pxl.js build examples/shop.px.js --no-preview --out "$RUNNER_TEMP/pxl-shop"

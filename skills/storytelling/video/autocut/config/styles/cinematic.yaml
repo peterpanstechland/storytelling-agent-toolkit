@@ -1,0 +1,52 @@
+id: cinematic
+name: 电影感
+aliases: [电影, 电影感, cinematic, film]
+description: 慢节奏、叠化转场、低饱和青橙色调，适合活动回顾和有故事性的片子。
+pacing: {avg_shot: 3.8, min_shot: 2.0, max_shot: 6.5, hook_shot: 2.0}
+transitions:
+  within: [cut, fade, cut]
+  section: [fadeblack, fade]
+  duration: 0.8
+effects:
+  zoom_prob: 0.45
+  speed_ramp: false
+letterbox: true            # 16:9 时加 2.35:1 遮幅
+subtitle: {size: 0.042, primary: "#F2F2F2", outline: "#000000", outline_w: 1.5, bold: false, margin_v: 0.06}
+title: {size: 0.075, primary: "#F5E6C8", accent: "#F5E6C8", bold: false}
+color:
+  filter: "eq=contrast=1.08:saturation=0.85:gamma=0.97,colorbalance=rs=-0.04:bs=0.05:rh=0.05:bh=-0.04"
+  lut: ""
+music: {mood: [电影, 史诗, 钢琴, 氛围, cinematic, ambient, piano], volume: 0.24}
+# ---- v2：运镜 / 特效 / 音效 / 文字动画 调色板 ----
+motion:
+  intensity: 0.5
+  move_prob: 0.8
+  moves_2d:
+    default: [push_in, pan, pull_out, tilt]
+    talking_head: [subject, push_in]
+  punch: {prob: 0.0}
+  shake: 0.0
+  moves_360: {hook: planet_intro, establishing: [orbit, tiny_planet], selfie: hero, default: follow}
+  whip360: false
+  ramp: {prob: 0.3, roles: [action, pov, crowd], interp: blend}
+  freeze: {prob: 0.0, max: 0}
+  pip: false
+fx:
+  look: [{type: grain, intensity: 0.2}, {type: vignette, intensity: 0.35}]
+  accents: [light_leak]
+  accent_prob: 0.25
+  accent_dur: 1.2
+  peak: []
+  beat_flash: {at: none}
+sfx: {transition: "", custom_transition: swish, section: [riser], flash: "", glitch: "", freeze: "", volume: 0.35}
+text_anims: {title: fade, section: fade, lower_third: slide_up, cta: fade, callout: fade, subtitle: ""}
+progress: {enabled: false}
+jianying:
+  transition: 叠化
+  filter: 情绪电影
+  filter_intensity: 55
+  intro: 渐显
+  outro: 渐隐
+  text_intro: 渐显
+  text_outro: 渐隐
+  scene_effects: {light_leak: 胶片漏光, grain: 噪点, vignette: 暗角}

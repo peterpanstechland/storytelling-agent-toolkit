@@ -11,9 +11,11 @@
 - **叙事与文案**：从素材提炼问题、证据和转折；面向第一次了解主题的读者；技术科普、活动报道、项目故事、推广内容和平台版本。
 - **图文与视觉**：照片叠加解释、数据图、长图切片、GIF、封面和轮播卡片。内置五种卡片版式，实际检查字体、换行和溢出。
 - **视频**：素材索引、可选 ASR、FFmpeg 剪辑、中英字幕、旁白时间线装配、现场声音保留、配乐 ducking，以及局部修改后的版本检查。
+- **自动剪辑（autocut）**：按项目管理多设备素材（活动/商单/Maker 项目/Vlog），设备识别、拍摄清单与缺镜头提醒、镜头切分与画面理解（可选云端或本地模型，也可纯离线）、带风格的整片粗剪；运镜、卡点、特效、自动音效、**Insta360 X5 360° 自动运镜**，输出 MP4 预览或**剪映草稿**。新增：ff-tracking 风格追踪框 HUD / 镜头质感 / 终端插卡（MIT 移植）、13 个 GL Transitions 转场、胶片模拟 / 变形拉丝光 / VHS Pro 与「高级感」风格（`premium_film`、`premium_maker`）；开源特效来源与许可结论见 [fx-sources](skills/storytelling/references/fx-sources.md)。可与上面的 `render` / `transcribe` / `narrate` 互相导入导出。
 - **电影语言**：甩镜、突切、急推、节奏剪辑、对称构图、拖影、虚拟摄影机；八类片头、动态文字、VFX、LUT 与音画配合的制作指南。
 - **程序化动效**：可复用 Canvas 动效模板；确定性网页逐帧渲染，可接 Three.js／SVG／GSAP 场景，导出 MP4 或 GIF。
 - **发布助手**：把一个故事改编成不同平台的文案、媒体顺序和发布包；公众号提供实际 API 适配器，其他平台提供官方编辑器／连接器工作流。
+- **像素画**：`skills/pxl` 用 `.px.js` 画出 PNG、精灵表和 GIF。图卡、文章配图、片头和短插入可以直接用这些文件。
 
 发布目标包括微信公众号、小红书图文、CSDN、AWS Builder Center、X，以及微信视频号、小红书视频、抖音、B站和 YouTube。
 
@@ -25,15 +27,16 @@
 
 > 阅读 `skills/storytelling/SKILL.md`。根据我的素材制作一篇面向新读者的图文，以及一条两分钟的视频。先完成可预览版本，保留来源与素材身份记录；只准备我指定平台的发布包。
 
-也可以把自包含的 `skills/storytelling/` 目录安装到你的 Agent 支持的 skills 目录。例如 Codex：
+也可以把自包含的 skill 目录安装到你的 Agent 支持的 skills 目录。例如 Codex：
 
 ```bash
 git clone https://github.com/peterpanstechland/storytelling-agent-toolkit.git
 cd storytelling-agent-toolkit
 python3 scripts/install_skill.py --target ~/.codex/skills
+python3 scripts/install_skill.py --skill pxl --target ~/.codex/skills
 ```
 
-安装器只复制本 skill，不修改全局模型、账号或其他 skill；目标已存在时停止。其他 Agent 选择其文档规定的目录，或直接读取这个 `SKILL.md`。`agents/openai.yaml` 是可选 UI 元数据，不是运行依赖。
+默认只复制 `skills/storytelling/`。`--skill pxl` 复制像素画 skill，`--skill all` 两个都复制。安装器不修改全局模型、账号或其他 skill；目标已存在时停止。其他 Agent 选择其文档规定的目录，或直接读取对应的 `SKILL.md`。`agents/openai.yaml` 是 storytelling 的可选 UI 元数据，不是运行依赖。
 
 ## 五分钟本地试跑
 
@@ -73,6 +76,25 @@ python skills/storytelling/video/run mix /path/to/mix.json --out /path/to/output
 
 [完整视频指南](skills/storytelling/references/video-production.md) · [电影语言与 VFX](skills/storytelling/references/cinematic-language.md)
 
+### 自动剪辑（多设备素材、风格化粗剪、360、剪映）
+
+素材多、来自不同设备时，用项目制的 autocut（额外依赖需自己安装，其余命令不受影响）：
+
+```bash
+python -m pip install -r skills/storytelling/video/requirements-autocut.txt
+python skills/storytelling/video/run doctor --require autocut
+python skills/storytelling/video/run autocut new "我的项目" --type maker --duration 90   # event / sponsored / maker / vlog
+python skills/storytelling/video/run autocut shotlist "我的项目"                          # 拍之前：拍摄清单
+python skills/storytelling/video/run autocut ingest "我的项目" /path/to/footage            # 设备识别（X5、Ace Pro 2、GO Ultra、Ray-Ban Meta、手机…）
+python skills/storytelling/video/run autocut analyze "我的项目" && python skills/storytelling/video/run autocut gaps "我的项目"
+python skills/storytelling/video/run autocut plan "我的项目" && python skills/storytelling/video/run autocut render "我的项目" --quick
+python skills/storytelling/video/run autocut draft "我的项目"                             # 剪映草稿（需 requirements-autocut-optional.txt）
+# 与 toolkit 互通：export-edit / import-edit / import-index / import-transcript / import-narration
+```
+
+内置 8 种风格（极致卡点、赛博故障、电影感 360、胶片复古、温暖日常等）。没有任何云端密钥也能离线跑完；剪映草稿是近似，360 的 `.insv` 拼接只是应急方案。
+完整流程、限制和与 `render` 的分工见 [自动剪辑](skills/storytelling/references/auto-edit.md) 和 [运镜与特效](skills/storytelling/references/auto-edit-effects.md)。
+
 ## 网页动效、长图和 GIF
 
 ```bash
@@ -100,6 +122,19 @@ python skills/storytelling/codevideo/catalog.py --category explainer --tag canva
 
 角色页是 `skills/storytelling/templates/character-beat.html`，仍用上面的网页渲染导出。标题卡的颗粒、光晕和暗角是本仓库原创的 Pillow 处理，不是外部着色器的拷贝。来源与取舍见 [fx-sources](skills/storytelling/references/fx-sources.md) 和 [代码成片说明](skills/storytelling/references/code-video.md)。
 
+## 像素画（pxl）
+
+[skills/pxl](skills/pxl/SKILL.md) 是像素画 skill，来自 [peterpanstechland/claude-pxl](https://github.com/peterpanstechland/claude-pxl) `72b9b8c`（Peter 对 [augusto-scarvalho/claude-pxl](https://github.com/augusto-scarvalho/claude-pxl) 的 fork，上游是 MIT 的 [crsolver/claude-pxl](https://github.com/crsolver/claude-pxl)）。需要 Node ≥ 22.18，没有运行时依赖。写 `.px.js`，得到 PNG、精灵表加 JSON、GIF，以及本地实时预览。
+
+```bash
+node skills/pxl/bin/pxl.js build skills/pxl/examples/shop.px.js --no-preview --out /tmp/pxl-shop
+cd skills/pxl && npm ci && npm run check
+```
+
+把 `--out` 指到用户的项目目录，不要写进 skill 自己的目录。PNG 可以放进图卡 JSON 目录，当作 `photo-overlay` 的 `image`，或当作文章配图。ffprobe 能读出时长的 GIF 可以当作视频计划里的一个 clip（片头或短插入）。静止 PNG 没有时长，不能直接当 clip；要定格就先做成短 GIF，或放进本地网页再用网页渲染导出。精灵表 JSON 留给游戏或后续合成，视频计划里没有单独的叠加轨。
+
+热带森林示例里的参考 PNG 是 CC-BY，不是 MIT。复用时保留 [CREDITS.md](skills/pxl/examples/tropical/refs/CREDITS.md) 中的署名。许可边界见 [NOTICE.md](NOTICE.md)。
+
 ## 发布与账号
 
 公众号工具默认只预览，远程操作必须明确选择：
@@ -126,6 +161,6 @@ python3 scripts/check_release.py
 python3 scripts/check_release.py --tracked
 ```
 
-测试覆盖图卡溢出、身份与数据引用、真实 FFmpeg 画面和音频边界、混音、公众号模拟 API、重复提交、发布状态和代码包检查。测试只使用临时合成素材或模拟传输，不发布到真实账号。自动测试不能取代最终画面和声音审看。
+测试覆盖图卡溢出、身份与数据引用、真实 FFmpeg 画面和音频边界、混音、公众号模拟 API、重复提交、发布状态和代码包检查，以及 autocut 的设备识别、规划、特效引擎、360 重投影、剪映导出和与 toolkit 的互通（未安装 autocut 依赖时这部分自动跳过）。测试只使用临时合成素材或模拟传输，不发布到真实账号。自动测试不能取代最终画面和声音审看。pxl 的类型检查和测试在 `skills/pxl` 里单独跑（`npm run check`，Node ≥ 22.18）；CI 用独立的 Node 任务，不替换上面的 Python 任务。发布检查仍拒绝私人素材；`skills/pxl` 里上游自带的示例图是唯一例外，说明见 [NOTICE.md](NOTICE.md)。
 
 贡献新平台时写清楚它是实际适配器还是编辑器交接流程，并附测试与官方来源。贡献新特效时提供确定性时间接口和真实可导出的短样例。不要提交私人项目目录、账号文件、素材、声音或模型。

@@ -1,0 +1,51 @@
+id: cinematic_360
+name: 电影感 360
+aliases: [360, 全景, 电影感360, 电影感 360, cinematic360, 360电影]
+description: 为 Insta360 X5 全景素材设计：小行星开场、平滑跟随、环绕摇镜、隐形自拍杆英雄镜头、360 甩镜；电影色调 + 光晕 + 漏光。
+pacing: {avg_shot: 3.4, min_shot: 1.8, max_shot: 6.5, hook_shot: 2.5}
+transitions:
+  within: [cut, fade, whip_left, cut, light_leak]
+  section: [light_leak, fadeblack, zoom_through]
+  duration: 0.6
+effects: {zoom_prob: 0.0, speed_ramp: false}
+letterbox: true
+beat_sync: true
+motion:
+  intensity: 0.65
+  move_prob: 0.85
+  moves_2d:
+    default: [push_in, pan, pull_out, tilt]
+    action: [push_in]
+    talking_head: [subject, push_in]
+  punch: {prob: 0.0}
+  shake: 0.0
+  moves_360: {hook: planet_intro, establishing: [orbit, tiny_planet, crystal_ball], selfie: hero, crowd: orbit, action: follow, pov: follow, default: follow}
+  whip360: true
+  ramp: {prob: 0.4, roles: [action, pov, crowd], interp: blend}
+  freeze: {prob: 0.0, max: 0}
+  pip: false
+fx:
+  look: [{type: grain, intensity: 0.25}, {type: vignette, intensity: 0.4}, {type: glow, intensity: 0.25}]
+  accents: [light_leak, flare]
+  accent_prob: 0.35
+  accent_dur: 1.2
+  peak: [flare]
+  beat_flash: {at: none}
+sfx: {transition: swish, custom_transition: whoosh, section: [riser], flash: "", glitch: "", freeze: shutter, volume: 0.4}
+text_anims: {title: fade, section: slide_up, lower_third: slide_up, cta: fade, callout: fade, subtitle: ""}
+progress: {enabled: false}
+subtitle: {size: 0.042, primary: "#F2F2F2", outline: "#000000", outline_w: 1.5, bold: false, margin_v: 0.06}
+title: {size: 0.075, primary: "#F5E6C8", accent: "#FFB86B", bold: false}
+color:
+  filter: "eq=contrast=1.08:saturation=0.9:gamma=0.97,colorbalance=rs=-0.05:bs=0.06:rh=0.06:bh=-0.05"
+  lut: ""
+music: {mood: [电影, 史诗, 氛围, 旅行, cinematic, epic, ambient, travel], volume: 0.26}
+jianying:
+  transition: 叠化
+  filter: 青橙电影
+  filter_intensity: 60
+  intro: 渐显
+  outro: 渐隐
+  text_intro: 渐显
+  text_outro: 渐隐
+  scene_effects: {light_leak: 胶片漏光, flare: 光晕, glow: 发光, grain: 噪点, vignette: 暗角}
