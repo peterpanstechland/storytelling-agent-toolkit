@@ -132,5 +132,5 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
 python3 scripts/check_release.py --tracked
 ```
 
-[Main Chinese documentation](../README.md) · [License](../LICENSE) ·
+[Main Chinese documentation](../README.md) · [使用指南](使用指南.md) · [License](../LICENSE) ·
 [Third-party boundaries](../NOTICE.md)

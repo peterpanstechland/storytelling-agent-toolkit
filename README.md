@@ -4,7 +4,7 @@
 
 由「彼得潘的科技谷」的图文与视频制作实践整理。面向 AI Agent 的可移植 skill，加上能实际运行的图文、剪辑、声音装配和公众号工具。它保留创作方法与工程工具，**不包含活动素材、人物照片、声音样本、成片、品牌 Logo、模型或账号凭据**。
 
-[Agent 入口：SKILL.md](skills/storytelling/SKILL.md) · [English](docs/README.en.md) · [MIT License](LICENSE)
+[Agent 入口：SKILL.md](skills/storytelling/SKILL.md) · [使用指南](docs/使用指南.md) · [English](docs/README.en.md) · [MIT License](LICENSE)
 
 ## 能做什么
 
