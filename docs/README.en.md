@@ -76,8 +76,11 @@ authors the story and channel variants, and selects the user's source material.
   Jianying drafts are approximations, raw `.insv` stitching is an emergency
   fallback, and the 360/Jianying/cloud-model paths have not been verified against
   real devices or services. See [auto edit](../skills/storytelling/references/auto-edit.md).
-- Voice cloning/TTS providers remain external choices. Narration tools assemble
-  already generated or recorded audio; no voice model is bundled.
+- `clone` invokes a separately installed local IndexTTS-2.5 runtime; `voice-check`
+  verifies script agreement using hash-bound ASR results. Other providers can still
+  supply finished audio to `narrate`; no voice model is bundled.
+- `grade` applies a time/region-limited SDR brightness pass, preserving encoded
+  audio and checking the full frame clock of an accepted edit.
 - Pixel-art PNG, GIF and sprite sheets from the vendored [pxl](../skills/pxl/SKILL.md)
   skill. Card renderers and the video edit plan consume those files; pxl does
   not call them.
@@ -134,3 +137,18 @@ python3 scripts/check_release.py --tracked
 
 [Main Chinese documentation](../README.md) · [使用指南](使用指南.md) · [License](../LICENSE) ·
 [Third-party boundaries](../NOTICE.md)
+
+## Local voice cloning and accepted-film revisions
+
+The toolkit now has an executable `video/run clone` adapter for a separately installed
+IndexTTS-2.5 runtime: authorized reference preparation, section-level emotion/speed,
+sample-first generation, hash-validated resume, and measured narration handoff.
+`voice-check` compares the generated audio with its script using hash-bound ASR
+transcripts; it does not certify voice similarity or naturalness. See the
+[voice guide](../skills/storytelling/references/voice-cloning.md). No voice or model
+is shipped.
+
+`video/run grade` makes scoped SDR brightness revisions while checking every frame
+timestamp and preserving encoded audio. The [revision guide](../skills/storytelling/references/video-revisions.md)
+also covers replacing restricted material inside screens, montages and transitions
+when producing a platform-specific edition.

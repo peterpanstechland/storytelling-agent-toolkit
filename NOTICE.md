@@ -94,3 +94,15 @@ GPL、AGPL、CC-BY-NC、source-available 与无许可证的项目只作参考，
 Creators retain responsibility for the material they choose to publish. The
 fictional examples are for exercising the tools and are not real event reports
 or measured technical claims.
+
+## Local IndexTTS adapter
+
+`skills/storytelling/video/scripts/voice_clone.py` and `voice_check.py` are original
+toolkit integration code adapted from the author’s private production workflow.
+They invoke a separately installed [IndexTTS](https://github.com/index-tts/index-tts)
+2.5 runtime (integration revision `d9e41aac89fd00b3d71497fddb287b7f24613712`).
+No upstream inference implementation, voice recording or model weights are copied.
+IndexTTS code, IndexTTS-2.5 weights, w2v-bert, BigVGAN, CAMPPlus and their dependencies
+retain their separate licenses and attribution requirements. Keep their notices
+with the private production environment and follow their output/distribution terms.
+The toolkit MIT license applies only to the adapter, not to those engines or voices.

@@ -17,7 +17,7 @@ from pathlib import Path
 
 from . import config
 from .edl import EDL, RAMP_FACTOR, RAMP_SPLIT, XFADE, Clip
-from .media import FFmpegError, ffmpeg, file_option, kind_of, pick_encoder, probe, video_encode_args
+from .media import FFmpegError, compatible_xfade, ffmpeg, file_option, kind_of, pick_encoder, probe, video_encode_args
 from .project import Project
 from .util import info, ok, short_hash, warn
 
@@ -556,6 +556,7 @@ def render(project: Project, edl: EDL | None = None, *, out: Path | None = None,
 
     acc_v, acc_a, acc_f = "v0", "a0", frames_of(0)
     acc_ad = edl.clips[0].duration
+    transition_fallbacks = set()
     for i in range(1, n):
         c = edl.clips[i]
         t = XFADE.get(c.transition_in.type)
@@ -568,6 +569,12 @@ def render(project: Project, edl: EDL | None = None, *, out: Path | None = None,
             fc.append(f"[{acc_v}][v{i}]concat=n=2:v=1:a=0,settb=AVTB,fps={fps}[{nv}]")
             acc_f += frames_of(i)
         else:
+            supported = compatible_xfade(t)
+            if supported != t and t not in transition_fallbacks:
+                note = f"当前 FFmpeg 不支持 {t} 转场，改用 {supported}，保留转场时长。"
+                warn(note)
+                transition_fallbacks.add(t)
+            t = supported
             fc.append(f"[{acc_v}][v{i}]xfade=transition={t}:duration={d:.3f}:offset={acc_f / fps - d:.3f}[{nv}]")
             acc_f += frames_of(i) - int(round(d * fps))
         if d > 0 and (i in trans or t is not None):

@@ -78,7 +78,7 @@ def main():
                       "python": sys.executable, "capabilities": capabilities, "checks": checks,
                       "notes": ["Caption burn-in additionally requires subtitles/libass and suitable fonts.",
                                 "A present ASR directory is a structural check, not an inference test.",
-                                "Voice generation providers and models are not bundled or checked here.",
+                                "Voice models are not bundled; use `clone PLAN --check` to check local IndexTTS files.",
                                 "autocut needs requirements-autocut.txt; its optional extras only add features "
                                 "(Jianying export, beat sync, YOLO tracking). Run `video/run autocut doctor` for details."]},
                      ensure_ascii=False, indent=2))

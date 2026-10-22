@@ -41,6 +41,31 @@ def ffmpeg_major(binary: str | None = None) -> int:
     return 99 if re.search(r"ffmpeg version\s+(N-|git-)", out) else 0
 
 
+@lru_cache(maxsize=8)
+def xfade_transitions(binary: str) -> frozenset[str]:
+    """Inspect actual filter capabilities, including vendor builds with backports."""
+    import re
+    try:
+        result = subprocess.run([binary, "-hide_banner", "-h", "filter=xfade"],
+                                capture_output=True, timeout=20)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise FFmpegError(f"Cannot inspect xfade transitions: {exc}") from exc
+    text = (result.stdout + result.stderr).decode("utf-8", "replace")
+    names = frozenset(re.findall(r"^\s+(\w+)\s+-?\d+\s+", text, re.MULTILINE))
+    if result.returncode or not names:
+        raise FFmpegError("This FFmpeg build does not report usable xfade transitions")
+    return names
+
+
+def compatible_xfade(name: str, binary: str | None = None) -> str:
+    available = xfade_transitions(binary or ffmpeg_bin())
+    if name in available:
+        return name
+    if "fade" in available:
+        return "fade"
+    raise FFmpegError(f"Neither requested xfade {name!r} nor fallback fade is available")
+
+
 def file_option(opt: str, path: str, major: int | None = None) -> list[str]:
     """Read an option's value from a file. ffmpeg >= 7: `-/opt file`; older: the legacy `-opt_script file`
     (only filter options have one), e.g. file_option("filter_complex", "graph.txt")."""

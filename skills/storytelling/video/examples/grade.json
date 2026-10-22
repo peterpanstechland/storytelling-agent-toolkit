@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "source": "../media/accepted-master.mp4",
+  "subtitles": ["../media/zh.srt"],
+  "shots": [
+    {"start": 0, "end": 4, "region": [0, 118, 1280, 526], "lift": 0.12, "saturation": 1.05},
+    {"start": 10, "end": 14, "region": [0, 118, 1280, 526], "lift": 0.18, "saturation": 1.08}
+  ]
+}

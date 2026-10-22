@@ -17,9 +17,11 @@ def fake_run(text):
 class TestFfmpegCompat(unittest.TestCase):
     def setUp(self):
         media.ffmpeg_major.cache_clear()
+        media.xfade_transitions.cache_clear()
 
     def tearDown(self):
         media.ffmpeg_major.cache_clear()
+        media.xfade_transitions.cache_clear()
 
     def test_major_parsing(self):
         for text, want in [("ffmpeg version 6.1.1-3ubuntu5 Copyright", 6), ("ffmpeg version 7.1.5-0+deb13u1", 7),
@@ -43,6 +45,17 @@ class TestFfmpegCompat(unittest.TestCase):
     def test_missing_binary(self):
         with mock.patch.object(media.subprocess, "run", side_effect=FileNotFoundError):
             self.assertEqual(media.ffmpeg_major("nope"), 0)
+
+    def test_xfade_fallback_uses_capabilities_not_version(self):
+        help_text = "     fade    0    ..FV....... fade transition\n     wipeleft 1 ..FV....... wipe\n"
+        with mock.patch.object(media.subprocess, "run", fake_run(help_text)):
+            self.assertEqual(media.compatible_xfade("zoomin", "old-build"), "fade")
+            self.assertEqual(media.compatible_xfade("wipeleft", "old-build"), "wipeleft")
+        with mock.patch.object(media.subprocess, "run", fake_run(help_text + "     zoomin 43 ..FV....... zoom\n")):
+            self.assertEqual(media.compatible_xfade("zoomin", "new-build"), "zoomin")
+        with mock.patch.object(media.subprocess, "run", fake_run("Unknown filter 'xfade'")):
+            with self.assertRaises(media.FFmpegError):
+                media.compatible_xfade("fade", "missing-filter")
 
     def test_file_option(self):
         self.assertEqual(media.file_option("filter_complex", "g.txt", major=7), ["-/filter_complex", "g.txt"])

@@ -8,6 +8,7 @@ import sys
 COMMANDS = {
     "doctor": "doctor.py", "inspect": "inspect_media.py", "transcribe": "transcribe.py",
     "render": "render.py", "narrate": "narration.py", "mix": "narration.py",
+    "grade": "grade.py", "clone": "voice_clone.py", "voice-check": "voice_check.py",
     "autocut": "autocut",  # project-based auto-edit package (autocut/vcut); extra dependencies
 }
 
@@ -15,7 +16,7 @@ COMMANDS = {
 def main():
     command = sys.argv[1] if len(sys.argv) > 1 else "doctor"
     if command in ("--help", "-h"):
-        print("Usage: python video/run {doctor|inspect|transcribe|render|narrate|mix|autocut} [arguments]")
+        print("Usage: python video/run {doctor|inspect|transcribe|render|grade|clone|voice-check|narrate|mix|autocut} [arguments]")
         return 0
     if command not in COMMANDS:
         print("Unknown command. Use --help for supported commands.", file=sys.stderr)

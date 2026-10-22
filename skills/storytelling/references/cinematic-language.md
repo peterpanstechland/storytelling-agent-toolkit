@@ -172,3 +172,5 @@ style frame cannot establish pacing; a successful render cannot establish story
 fidelity. Export, inspect, listen, and revise the smallest needed passage.
 
 The `video/run autocut` tools implement several of these moves (whip, push, speed ramp, freeze/annotation, glitch, 360 reframing) with style presets: [auto edit: moves and effects](auto-edit-effects.md). Presets are starting points; judge each result on screen.
+
+For a region/time-limited SDR brightness pass that preserves audio and frame timing, see [video revisions](video-revisions.md) and `video/run grade`. It does not generate or apply a camera-specific LUT.

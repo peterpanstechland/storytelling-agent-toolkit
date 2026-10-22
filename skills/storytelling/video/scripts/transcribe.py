@@ -25,9 +25,14 @@ def main():
     source = args.source.expanduser().resolve(strict=True)
     if not source.is_file():
         raise ValueError('Source must be a local file')
+    hasher = hashlib.sha256()
+    with source.open('rb') as audio:
+        for block in iter(lambda: audio.read(8 * 1024 * 1024), b''):
+            hasher.update(block)
+    source_sha256 = hasher.hexdigest()
     stat = source.stat()
     signature = hashlib.sha256(json.dumps({
-        'source': str(source), 'size': stat.st_size, 'mtime_ns': stat.st_mtime_ns,
+        'source': str(source), 'source_sha256': source_sha256, 'size': stat.st_size, 'mtime_ns': stat.st_mtime_ns,
         'model': args.model, 'language': args.language, 'terms': args.terms,
         'device': args.device, 'compute_type': args.compute_type,
     }, sort_keys=True).encode()).hexdigest()
@@ -63,6 +68,7 @@ def main():
                   'model': args.model, 'language': info.language,
                   'language_probability': info.language_probability, 'segments': rows,
                   'review_note': 'Machine transcript; verify technical terms, numbers and speech presence.'}
+    result['source_sha256'] = source_sha256
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with args.out.open('x', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=2)

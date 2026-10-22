@@ -2,7 +2,7 @@
 
 **把真实素材变成有故事、有信息、有画面的内容，再交付到合适的平台。**
 
-由「彼得潘的科技谷」的图文与视频制作实践整理。面向 AI Agent 的可移植 skill，加上能实际运行的图文、剪辑、声音装配和公众号工具。它保留创作方法与工程工具，**不包含活动素材、人物照片、声音样本、成片、品牌 Logo、模型或账号凭据**。
+由「彼得潘的科技谷」的图文与视频制作实践整理。面向 AI Agent 的可移植 skill，加上能实际运行的图文、剪辑、声音克隆、混音和公众号工具。它保留创作方法与工程工具，**不包含活动素材、人物照片、声音样本、成片、品牌 Logo、模型或账号凭据**。
 
 [Agent 入口：SKILL.md](skills/storytelling/SKILL.md) · [使用指南](docs/使用指南.md) · [English](docs/README.en.md) · [MIT License](LICENSE)
 
@@ -10,6 +10,8 @@
 
 - **叙事与文案**：从素材提炼问题、证据和转折；面向第一次了解主题的读者；技术科普、活动报道、项目故事、推广内容和平台版本。
 - **图文与视觉**：照片叠加解释、数据图、长图切片、GIF、封面和轮播卡片。内置五种卡片版式，实际检查字体、换行和溢出。
+- **本地声音克隆**：可执行的 IndexTTS-2.5 适配器，参考录音裁切、逐段情绪与语速、短样试听、断点续跑、输入/输出哈希、ASR 文案校对，接入旁白装配和混音。引擎和模型单独安装；见 [声音克隆指南](skills/storytelling/references/voice-cloning.md)。
+- **成片修订**：按镜头和画面区域提亮 SDR 视频，校验逐帧时间及原声音频哈希；补充平台版素材替换的嵌套画面检查流程。见 [修订指南](skills/storytelling/references/video-revisions.md)。
 - **视频**：素材索引、可选 ASR、FFmpeg 剪辑、中英字幕、旁白时间线装配、现场声音保留、配乐 ducking，以及局部修改后的版本检查。
 - **自动剪辑（autocut）**：按项目管理多设备素材（活动/商单/Maker 项目/Vlog），设备识别、拍摄清单与缺镜头提醒、镜头切分与画面理解（可选云端或本地模型，也可纯离线）、带风格的整片粗剪；运镜、卡点、特效、自动音效、**Insta360 X5 360° 自动运镜**，输出 MP4 预览或**剪映草稿**。新增：ff-tracking 风格追踪框 HUD / 镜头质感 / 终端插卡（MIT 移植）、13 个 GL Transitions 转场、胶片模拟 / 变形拉丝光 / VHS Pro 与「高级感」风格（`premium_film`、`premium_maker`）；开源特效来源与许可结论见 [fx-sources](skills/storytelling/references/fx-sources.md)。可与上面的 `render` / `transcribe` / `narrate` 互相导入导出。
 - **电影语言**：甩镜、突切、急推、节奏剪辑、对称构图、拖影、虚拟摄影机；八类片头、动态文字、VFX、LUT 与音画配合的制作指南。
@@ -19,7 +21,7 @@
 
 发布目标包括微信公众号、小红书图文、CSDN、AWS Builder Center、X，以及微信视频号、小红书视频、抖音、B站和 YouTube。
 
-这里的“支持平台”不是“内置了所有平台自动发文 API”。公众号支持上传、草稿与发布状态；其他平台需要 Agent 已连接的浏览器或官方连接器。**声音克隆也由选择的 TTS 提供方执行，工具包负责制作流程、音频装配与验证，不附带克隆模型。**
+这里的“支持平台”不是“内置了所有平台自动发文 API”。公众号支持上传、草稿与发布状态；其他平台需要 Agent 已连接的浏览器或官方连接器。**声音克隆已内置本地 IndexTTS-2.5 调用入口；引擎、模型和参考录音由使用者在本地配置，不随仓库分发。其他 TTS 的成品音频也可以接入。**
 
 ## 给 AI Agent 使用
 
@@ -68,6 +70,9 @@ python skills/storytelling/video/run doctor
 ```bash
 python skills/storytelling/video/run inspect /path/to/media --out /path/to/work/index-v1
 python skills/storytelling/video/run render /path/to/edit.json --out /path/to/outputs/video-v1
+python skills/storytelling/video/run clone /path/to/clone.json --check
+# clone 使用 IndexTTS 环境；详见声音克隆指南。
+python skills/storytelling/video/run grade /path/to/grade.json --out /path/to/outputs/color-v2
 python skills/storytelling/video/run narrate /path/to/narration.json --out /path/to/outputs/voice-v1
 python skills/storytelling/video/run mix /path/to/mix.json --out /path/to/outputs/mix-v1
 ```
@@ -161,6 +166,6 @@ python3 scripts/check_release.py
 python3 scripts/check_release.py --tracked
 ```
 
-测试覆盖图卡溢出、身份与数据引用、真实 FFmpeg 画面和音频边界、混音、公众号模拟 API、重复提交、发布状态和代码包检查，以及 autocut 的设备识别、规划、特效引擎、360 重投影、剪映导出和与 toolkit 的互通（未安装 autocut 依赖时这部分自动跳过）。测试只使用临时合成素材或模拟传输，不发布到真实账号。自动测试不能取代最终画面和声音审看。pxl 的类型检查和测试在 `skills/pxl` 里单独跑（`npm run check`，Node ≥ 22.18）；CI 用独立的 Node 任务，不替换上面的 Python 任务。发布检查仍拒绝私人素材；`skills/pxl` 里上游自带的示例图是唯一例外，说明见 [NOTICE.md](NOTICE.md)。
+测试覆盖图卡溢出、身份与数据引用、真实 FFmpeg 画面和音频边界、混音、声音克隆缓存失效与失败恢复、ASR 音频绑定、局部调色与音频/时间线保留、公众号模拟 API、重复提交、发布状态和代码包检查，以及 autocut 的设备识别、规划、特效引擎、360 重投影、剪映导出和与 toolkit 的互通（未安装 autocut 依赖时这部分自动跳过）。测试只使用临时合成素材或模拟传输，不发布到真实账号。自动测试不能取代最终画面和声音审看。pxl 的类型检查和测试在 `skills/pxl` 里单独跑（`npm run check`，Node ≥ 22.18）；CI 用独立的 Node 任务，不替换上面的 Python 任务。发布检查仍拒绝私人素材；`skills/pxl` 里上游自带的示例图是唯一例外，说明见 [NOTICE.md](NOTICE.md)。
 
 贡献新平台时写清楚它是实际适配器还是编辑器交接流程，并附测试与官方来源。贡献新特效时提供确定性时间接口和真实可导出的短样例。不要提交私人项目目录、账号文件、素材、声音或模型。

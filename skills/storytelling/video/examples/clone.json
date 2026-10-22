@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "engine": "index-tts-2.5",
+  "authorization": {
+    "speaker": "REPLACE_WITH_AUTHORIZED_SPEAKER",
+    "statement": "REPLACE_WITH_EXISTING_USER_AUTHORIZATION_AND_INTENDED_USE"
+  },
+  "runtime": {
+    "repository": "../engines/index-tts",
+    "model_dir": "../engines/index-tts/checkpoints",
+    "device": "cpu",
+    "threads": 4
+  },
+  "reference": {"source": "../private/speaker.wav", "in": 0.5, "out": 10.5},
+  "gap": 0.18,
+  "sections": [
+    {"id": "opening", "text": "看见结果，还不够。我们换个角度，看看它为什么会发生。", "mood": "curious", "language": "zhen", "duration_factor": 0.95, "seed": 1014},
+    {"id": "explain", "text": "先看动作，再看位置。把两条线索放在一起，变化就清楚了。", "mood": "clear", "language": "zhen", "duration_factor": 0.95, "seed": 1015}
+  ]
+}

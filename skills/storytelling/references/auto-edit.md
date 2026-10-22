@@ -166,3 +166,7 @@ cue has both languages.
 - FCPXML carries cuts, average speed and transitions only. 10-bit/HLG/Log footage is converted to 8-bit without tone mapping; convert HDR to SDR properly first.
 - The rule planner produces a **reviewable rough cut**, not a finished film. Narrative, facts, identity, brand and rights still follow the rest of this skill.
 - Not verified against a real X5 `.insv`, real Ray-Ban Meta clips, the real 剪映 client or real cloud models (automated tests use only synthetic media and mocked HTTP).
+
+### FFmpeg 转场兼容
+
+渲染时会检测当前 FFmpeg 的 `xfade` 能力；旧版本不支持的转场（例如 `zoomin`）退回 `fade`，保留转场时长并在渲染日志中记录。若连 `xfade` 都不可用则明确报错。画面形式可能变化，交付前仍需审看。

@@ -117,7 +117,10 @@ file paths or source names.
 ## Voice generation: replaceable provider
 
 The bundled `narrate` command **assembles existing audio; it does not synthesize
-or clone speech**. Use a user-selected local engine or authorized service, then
+or clone speech**. The separate `clone` command runs a locally installed IndexTTS-2.5
+engine with per-paragraph expression, resumable synthesis and ASR-backed checking;
+see [voice cloning](voice-cloning.md) for setup and the complete workflow.
+Alternatively use a user-selected local engine or authorized service, then
 pass its resulting files to the assembler. Check the provider's actual current
 API, model license, hardware, supported language, expression controls and use
 terms. This toolkit bundles no provider SDK, cloned voice, reference audio or
@@ -230,3 +233,5 @@ Use one project-local final timeline as the source of truth. Deliver actual
 MP4s, meaningful cover frame, requested subtitles and publication copy. The
 platform publishing workflow is separate; rendering is not evidence of upload,
 draft creation or publication.
+
+For an accepted cut needing only brightness recovery or a platform-specific material replacement, use [video revisions](video-revisions.md).
