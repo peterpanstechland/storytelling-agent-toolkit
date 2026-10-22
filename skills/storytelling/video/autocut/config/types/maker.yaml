@@ -1,0 +1,25 @@
+id: maker
+name: Maker 项目宣传
+description: 自己做的硬件/创客项目宣传片：成品高光 → 为什么做 → 制作过程 → 功能演示 → 实际使用 → 结尾引导。
+defaults: {duration: 90, aspect: "16:9", style: tech_minimal, platforms: [B站, YouTube]}
+voiceover: true
+sections:
+  - {id: hook, name: 开场高光, ratio: 0.08, categories: [demo, product, action], pick: best, voice: false, text: "{title}"}
+  - {id: intro, name: 口播·项目介绍, ratio: 0.17, categories: [talking_head], pick: speech, voice: true, lower_third: "{theme}"}
+  - {id: build, name: 制作过程, ratio: 0.22, categories: [build, pov, detail, screen], pick: chronological, voice: false, text: "制作过程"}
+  - {id: features, name: 功能演示, ratio: 0.28, categories: [demo, talking_head, screen, detail], pick: speech_or_best, voice: true, feature_titles: true}
+  - {id: showcase, name: 实际使用, ratio: 0.15, categories: [product, demo, establishing, broll], pick: best, voice: false}
+  - {id: outro, name: 结尾引导, ratio: 0.10, categories: [talking_head, product], pick: speech_or_best, voice: true, text: "{cta}"}
+cta: "开源资料见简介 · 关注我看更多 Maker 项目"
+shots:
+  - {id: hero, section: hook, name: 成品 Hero 镜头, category: product, devices: [phone, action], min_seconds: 10, required: true, keywords: [成品, 产品, 整体], desc: "成品放在干净背景上，缓慢推近/环绕 360°，开机亮灯的瞬间一定要拍到。", tips: "多拍几条不同角度，开场只用 1~2 秒最炸的那一下。"}
+  - {id: demo_wow, section: hook, name: 最酷的功能瞬间, category: demo, devices: [phone, pocket], min_seconds: 6, required: true, keywords: [演示, 运行, 动起来], desc: "项目最有看点的 3~5 秒（动起来/亮起来/响起来）。"}
+  - {id: talk_intro, section: intro, name: 口播：这是什么、为什么做, category: talking_head, devices: [phone], min_seconds: 20, required: true, keywords: [口播], desc: "对着镜头讲 20~40 秒：一句话介绍项目 + 灵感/痛点。", tips: "手机后置主摄 + 领夹麦，背景放半成品或工作台；一句一句讲，讲错停顿两秒重来，方便剪。"}
+  - {id: bench_wide, section: build, name: 工作台全景, category: establishing, devices: ["360", action], min_seconds: 8, required: false, keywords: [工作台, 桌面, 环境], desc: "俯拍/斜侧拍整个工作台，可做延时。"}
+  - {id: build_pov, section: build, name: 第一视角制作过程, category: pov, devices: [pocket, glasses], min_seconds: 30, required: true, keywords: [焊接, 组装, 手, 第一视角], desc: "GO Ultra 挂胸前/帽檐，拍焊接、走线、组装、3D 打印取件等手部动作。", tips: "每个工序拍 5~10 秒即可，不用全程录；手部动作慢一点。"}
+  - {id: build_detail, section: build, name: 元件/电路特写, category: detail, devices: [phone], min_seconds: 10, required: true, keywords: [电路板, 特写, 芯片, 元件], desc: "PCB、芯片、走线、结构件微距特写，最好带一点缓慢移动。"}
+  - {id: screen_code, section: build, name: 代码/建模/软件界面, category: screen, devices: [phone], min_seconds: 8, required: false, keywords: [代码, 屏幕, 建模, 软件], desc: "录屏或手机拍屏幕：写代码、建模、调参数。"}
+  - {id: feature_talk, section: features, name: 口播讲解每个功能, category: talking_head, devices: [phone], min_seconds: 30, required: true, keywords: [口播, 讲解], desc: "每个功能 1~2 句话讲清楚：它解决什么问题。"}
+  - {id: feature_demo, section: features, name: 功能演示（每个功能一段）, category: demo, devices: [phone, pocket], min_seconds: 30, required: true, keywords: [演示, 功能], desc: "一个功能一段完整演示，开头和结尾各多留 2 秒。"}
+  - {id: in_use, section: showcase, name: 真实场景使用, category: product, devices: [phone, action, "360"], min_seconds: 15, required: true, keywords: [使用, 场景, 生活], desc: "放到真实环境里用（桌面/户外/给朋友用），X5 可以拍第三人称跟随。"}
+  - {id: outro_talk, section: outro, name: 结尾口播 + 引导, category: talking_head, devices: [phone], min_seconds: 8, required: false, keywords: [结尾, 关注, 开源], desc: "总结一句 + 开源地址/下期预告/关注引导。"}

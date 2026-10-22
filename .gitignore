@@ -18,6 +18,10 @@ secrets*
 receipts/
 .sessions/
 playwright/.auth/
+# autocut 个人覆盖配置与项目输出
+settings.local.yaml
+showcase_out/
+
 # Content stays in the creator's workspace, not this reusable toolkit
 work/
 outputs/

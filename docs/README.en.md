@@ -35,6 +35,9 @@ python3 skills/storytelling/scripts/story.py validate /tmp/story-demo/brief.json
 python3 skills/storytelling/scripts/story.py pack /tmp/story-demo/brief.json --output /tmp/story-demo/pack
 python3 skills/storytelling/scripts/render_cards.py skills/storytelling/examples/cards.json --output /tmp/story-demo/cards
 python3 skills/storytelling/video/run doctor
+# optional auto-edit package (needs: python3 -m pip install -r skills/storytelling/video/requirements-autocut.txt)
+python3 skills/storytelling/video/run doctor --require autocut
+python3 skills/storytelling/video/run autocut --help
 ```
 
 These examples are explicitly fictional. The brief tool exports local channel
@@ -56,6 +59,21 @@ authors the story and channel variants, and selects the user's source material.
 - Browser/connector handoff guides for Xiaohongshu, CSDN, AWS Builder Center, X,
   WeChat Channels, Douyin, Bilibili and YouTube. Their upload APIs are **not**
   implemented by this package.
+- **Auto edit (`video/run autocut`)**: project-based management of multi-device
+  footage (event / sponsored / maker / vlog projects), device detection from
+  editable config (Insta360 X5, Ace Pro 2, GO Ultra, Ray-Ban Meta glasses,
+  phones), shot lists and missing-shot reminders, shot detection and optional
+  vision-model understanding (DashScope / Gemini / Ollama, or fully offline
+  heuristics), styled rough cuts with beat-synced punch-ins, whip pans, speed
+  ramps, glitch/leak/flash effects, kinetic text and synthesized SFX, **Insta360
+  X5 360° auto-reframing** (tiny planet, orbit, follow, hero shot; 16:9 and 9:16),
+  FFmpeg MP4 preview and **Jianying (剪映) draft** export. Also: ff-tracking-style tracker HUD / lens look / terminal card (MIT port), 13 ported GL Transitions, film emulation / anamorphic streaks / VHS Pro and the `premium_film` / `premium_maker` styles (sources and licence verdicts: `skills/storytelling/references/fx-sources.md`). It converts to and
+  from the toolkit's `edit.json`, transcripts, inspect index and narration
+  output (the `edit.json` export is lossy). It needs extra packages
+  (`video/requirements-autocut.txt`); every other command works without them.
+  Jianying drafts are approximations, raw `.insv` stitching is an emergency
+  fallback, and the 360/Jianying/cloud-model paths have not been verified against
+  real devices or services. See [auto edit](../skills/storytelling/references/auto-edit.md).
 - Voice cloning/TTS providers remain external choices. Narration tools assemble
   already generated or recorded audio; no voice model is bundled.
 - Pixel-art PNG, GIF and sprite sheets from the vendored [pxl](../skills/pxl/SKILL.md)

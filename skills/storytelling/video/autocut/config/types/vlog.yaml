@@ -1,0 +1,19 @@
+id: vlog
+name: 个人 Vlog
+description: 生活记录：开场 → 按时间线的经历 → 有意思的瞬间 → 结尾。默认不做口播段落，保留随拍时的自然说话。
+defaults: {duration: 180, aspect: "16:9", style: warm_daily, platforms: [B站, 小红书]}
+voiceover: false
+sections:
+  - {id: opening, name: 开场, ratio: 0.10, categories: [selfie, establishing, crowd], pick: best, voice: false, text: "{title}"}
+  - {id: journey, name: 一路经过, ratio: 0.45, categories: [selfie, establishing, broll, action, crowd, pov], pick: chronological, voice: true}
+  - {id: moments, name: 有意思的瞬间, ratio: 0.30, categories: [detail, action, pov, product, crowd, broll], pick: best, voice: true}
+  - {id: ending, name: 结尾, ratio: 0.15, categories: [establishing, selfie, broll], pick: chronological, voice: false, text: "{cta}"}
+cta: "下次见 👋"
+shots:
+  - {id: open_selfie, section: opening, name: 开场自拍/今天去哪, category: selfie, devices: ["360", phone], min_seconds: 8, required: true, keywords: [自拍, 开场], desc: "一句话交代今天的计划（自然说就好，不用口播稿）。"}
+  - {id: establishing, section: opening, name: 地点建立镜头, category: establishing, devices: ["360", action], min_seconds: 10, required: true, keywords: [环境, 风景, 地点], desc: "到达每个地点先拍 5 秒空镜。"}
+  - {id: walk_360, section: journey, name: X5 第三人称行走, category: selfie, devices: ["360"], min_seconds: 15, required: false, keywords: [行走, 跟拍, 第三人称], desc: "隐形自拍杆举高，第三人称跟随走路。"}
+  - {id: pov_moments, section: journey, name: 第一视角片段, category: pov, devices: [pocket, glasses], min_seconds: 15, required: false, keywords: [第一视角, 手], desc: "吃东西、买东西、动手做事的第一视角。"}
+  - {id: details, section: moments, name: 细节特写, category: detail, devices: [phone], min_seconds: 15, required: true, keywords: [特写, 细节, 食物], desc: "食物、物件、光影的特写，后期当 B-roll 很好用。"}
+  - {id: motion, section: moments, name: 运动/动态镜头, category: action, devices: [action], min_seconds: 10, required: false, keywords: [骑行, 运动, 速度], desc: "骑车/跑步/交通工具上的动态镜头，Ace Pro 2 稳定性好。"}
+  - {id: ending_scene, section: ending, name: 结尾画面, category: establishing, devices: ["360", action], min_seconds: 8, required: true, keywords: [日落, 夜景, 结尾], desc: "日落、夜景、回家路上，留一个安静的结尾。"}

@@ -1,0 +1,22 @@
+id: sponsored
+name: 商单活动/体验
+description: 品牌付费合作的活动宣传或产品体验：必须满足 brief（必拍元素、核心信息、Logo、时长、平台）。
+defaults: {duration: 60, aspect: "9:16", style: energetic, platforms: [抖音, 小红书]}
+voiceover: true
+sections:
+  - {id: hook, name: 开场钩子, ratio: 0.08, categories: [product, crowd, demo, logo], pick: best, voice: false, text: "{title}"}
+  - {id: intro, name: 口播·我是谁/今天体验什么, ratio: 0.14, categories: [talking_head, selfie], pick: speech, voice: true, lower_third: "{brand}"}
+  - {id: brand, name: 品牌/活动交代, ratio: 0.12, categories: [logo, establishing, product], pick: best, voice: false, logo: true}
+  - {id: experience, name: 体验过程（必拍元素）, ratio: 0.30, categories: [demo, pov, product, detail, crowd], pick: must_show, voice: false}
+  - {id: messages, name: 口播·核心卖点, ratio: 0.22, categories: [talking_head, demo, product], pick: speech_or_best, voice: true, key_messages: true}
+  - {id: outro, name: 结尾 CTA + Logo 落版, ratio: 0.14, categories: [talking_head, product, logo], pick: speech_or_best, voice: true, text: "{cta}", logo: true}
+cta: "{sponsor_cta}"
+shots:
+  - {id: brand_logo, section: brand, name: 品牌 Logo/门头/主视觉, category: logo, devices: [phone, action], min_seconds: 8, required: true, keywords: [logo, 品牌, 门头, 主视觉], desc: "清晰、正面、无遮挡的品牌 Logo/展台门头，至少 2 个角度。"}
+  - {id: product_hero, section: hook, name: 产品 Hero 镜头, category: product, devices: [phone], min_seconds: 10, required: true, keywords: [产品, 包装, 外观], desc: "按品牌要求的角度拍产品外观、包装，干净背景，缓慢推近。"}
+  - {id: intro_talk, section: intro, name: 开场口播, category: talking_head, devices: [phone], min_seconds: 10, required: true, keywords: [口播, 开场], desc: "自我介绍 + 今天体验什么（品牌名要读准确）。"}
+  - {id: venue, section: brand, name: 活动现场环境, category: establishing, devices: ["360", action], min_seconds: 10, required: false, keywords: [现场, 场地, 环境], desc: "活动现场全景、人流、布置。"}
+  - {id: experience_pov, section: experience, name: 体验过程第一视角, category: pov, devices: [pocket, glasses], min_seconds: 20, required: true, keywords: [体验, 上手, 操作], desc: "第一视角完整拍一遍核心体验流程。"}
+  - {id: feature_detail, section: experience, name: 卖点功能特写, category: detail, devices: [phone], min_seconds: 15, required: true, keywords: [特写, 功能, 细节], desc: "每个核心卖点对应一个特写画面（看 brief 里的 key_messages）。"}
+  - {id: key_msg_talk, section: messages, name: 口播：核心卖点, category: talking_head, devices: [phone], min_seconds: 20, required: true, keywords: [口播, 卖点], desc: "用自己的话把 brief 里每条核心信息讲一遍，每条单独一句，方便剪。"}
+  - {id: cta_talk, section: outro, name: 结尾 CTA 口播, category: talking_head, devices: [phone], min_seconds: 5, required: true, keywords: [结尾, 链接, 引导], desc: "按 brief 的 CTA（领券/预约/到店/链接）说一遍。"}

@@ -1,0 +1,71 @@
+id: tracker_hud
+name: 追踪框 HUD / 终端感
+aliases: [追踪框, HUD, 追踪, 终端, tracker, hud, terminal, agent]
+description: ff-tracking 风格：影线追踪框 + 真实像素坐标 + 锁定瞬间，LED 屏幕拍摄质感（调色板 + 色散 + 辉光 + 追踪景深），Maker/科技项目自动插入终端 HUD 卡片，键盘声/锁定提示音。
+pacing: {avg_shot: 1.9, min_shot: 0.8, max_shot: 3.8, hook_shot: 0.8}
+transitions:
+  within: [cut, cut, glitch, cut, whip_left]
+  section: [glitch, flash, zoom_through]
+  duration: 0.28
+effects: {zoom_prob: 0.0, speed_ramp: false}
+beat_sync: true
+motion:
+  intensity: 0.65
+  move_prob: 0.7
+  moves_2d:
+    default: [push_in, pan]
+    product: [push_in, roll]
+    screen: [push_in]
+    detail: [push_in]
+    talking_head: [subject]
+  punch: {prob: 0.3, at: downbeats, every: 1, roles: [product, build, detail, demo]}
+  shake: 0.0
+  moves_360: {hook: planet_intro, establishing: orbit, selfie: hero, default: follow}
+  whip360: true
+  ramp: {prob: 0.2, roles: [action, pov, build], interp: blend}
+  freeze: {prob: 0.2, max: 1, callout: true}
+  pip: true
+fx:
+  look: [{type: vignette, intensity: 0.3}]
+  accents: [glitch, rgb_split]
+  accent_prob: 0.35
+  accent_dur: 0.35
+  peak: [rgb_split]
+  beat_flash: {at: none}
+hud:
+  tracker:
+    prob: 0.7
+    roles: [product, detail, screen, build, demo, broll, action, pov]
+    min_dur: 1.8
+    max_clips: 4
+    window: 3.0
+    mode: auto
+    lock: peak
+    collapse: true              # 最后一个 HUD 镜头收束成 "标题" 小胶囊
+    intensity: 0.9
+    lens: {palette: thermal, palette_mix: 0.7, dof: 0.9, bloom: 0.55, led: 0.5, camera: subtle}
+    lens_intensity: 0.85
+  terminal:
+    enabled: true
+    position: after_hook
+    only_types: [maker]
+    title: agent
+    done: Done
+  sfx: true
+  sfx_volume: 0.5
+sfx: {transition: swish, custom_transition: glitch, section: [riser, hit], flash: "", glitch: glitch, freeze: pop, volume: 0.45}
+text_anims: {title: glitch, section: slide_up, lower_third: highlight_box, cta: pop, callout: pop, subtitle: ""}
+progress: {enabled: false, color: "#3DD6F5", height: 6}
+subtitle: {size: 0.048, primary: "#FFFFFF", outline: "#05060A", outline_w: 2.5, bold: false, margin_v: 0.08}
+title: {size: 0.085, primary: "#FFFFFF", accent: "#FF3B30", bold: true}
+color:
+  filter: "eq=contrast=1.08:saturation=0.95:gamma=0.97,colorbalance=bs=0.05:bm=0.02"
+  lut: ""
+music: {mood: [电子, 科技, 合成器, minimal, electronic, synthwave], volume: 0.24}
+jianying:
+  transition: 故障
+  filter: 冷蓝
+  filter_intensity: 50
+  intro: 渐显
+  text_intro: 故障打字机
+  scene_effects: {glitch: 色差故障, rgb_split: 色差}
