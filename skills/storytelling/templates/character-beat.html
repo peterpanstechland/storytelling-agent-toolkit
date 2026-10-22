@@ -1,0 +1,168 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Character beat</title>
+<!--
+  Geometric figure driven by codevideo/performance.js.
+  Pose, emotion and dance math are adapted from John Heibel's ClaudeAnimationBase (MIT).
+  The drawing itself is original and is not the upstream Clawd character.
+  Edit KEYS and DANCES, then export with scripts/capture_web.mjs (1280x720).
+-->
+<style>
+  html, body { margin: 0; background: #f4efe6; }
+  canvas { display: block; }
+</style>
+<canvas id="stage" width="1280" height="720"></canvas>
+<script src="../codevideo/performance.js"></script>
+<script>
+const P = StoryPerformance;
+P.configure({ bpm: 120, offset: 0, duration: 8 });
+const KEYS = [
+  [0, "neutral"],
+  [1.6, "surprised"],
+  [2.4, "happy"],
+  [4.2, "determined"],
+  [6.2, "laugh"],
+  [7.2, "hopeful"],
+];
+const DANCES = ["idle", "bounce", "wave", "hop", "sway"];
+const canvas = document.getElementById("stage");
+const ctx = canvas.getContext("2d");
+
+function eyesOf(pose) {
+  return Array.isArray(pose.eyes) ? pose.eyes : [pose.eyes || "normal", pose.eyes || "normal"];
+}
+
+function drawEye(x, y, kind, lookX, squint) {
+  ctx.save();
+  ctx.translate(x + lookX * 4, y);
+  const open = Math.max(0.15, 1 - (squint || 0));
+  ctx.strokeStyle = "#1c2430";
+  ctx.fillStyle = "#1c2430";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  if (kind === "happy" || kind === "squeeze") {
+    ctx.beginPath();
+    ctx.arc(0, 4, 10, Math.PI * 1.05, Math.PI * 1.95);
+    ctx.stroke();
+  } else if (kind === "closed" || kind === "sleepy") {
+    ctx.beginPath();
+    ctx.moveTo(-12, 0);
+    ctx.lineTo(12, kind === "sleepy" ? 4 : 0);
+    ctx.stroke();
+  } else if (kind === "x") {
+    ctx.beginPath();
+    ctx.moveTo(-8, -8); ctx.lineTo(8, 8);
+    ctx.moveTo(8, -8); ctx.lineTo(-8, 8);
+    ctx.stroke();
+  } else if (kind === "wink") {
+    ctx.beginPath();
+    ctx.moveTo(-10, 0); ctx.lineTo(10, 2);
+    ctx.stroke();
+  } else {
+    const h = (kind === "wide" || kind === "scared" || kind === "spark" || kind === "shine") ? 16 : (kind === "narrow" || kind === "angry" ? 5 : 10);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 9, h * open, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    if (kind !== "narrow") {
+      ctx.beginPath();
+      ctx.arc(2, 1, kind === "wide" ? 3.5 : 2.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+function drawMouth(kind) {
+  ctx.strokeStyle = "#1c2430";
+  ctx.fillStyle = "#1c2430";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  if (kind === "smile" || kind === "grin" || kind === "cat") {
+    ctx.arc(0, -6, 16, 0.15 * Math.PI, 0.85 * Math.PI);
+    ctx.stroke();
+  } else if (kind === "frown" || kind === "wail") {
+    ctx.arc(0, 18, 16, 1.15 * Math.PI, 1.85 * Math.PI);
+    ctx.stroke();
+  } else if (kind === "open" || kind === "O" || kind === "o" || kind === "laugh") {
+    ctx.ellipse(0, 8, kind === "laugh" ? 16 : 10, kind === "O" ? 14 : 9, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  } else if (kind === "tongue") {
+    ctx.arc(0, 0, 14, 0.1 * Math.PI, 0.9 * Math.PI);
+    ctx.stroke();
+    ctx.fillStyle = "#d46a6a";
+    ctx.beginPath();
+    ctx.ellipse(0, 16, 6, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    ctx.moveTo(-14, 6);
+    ctx.lineTo(14, kind === "smirk" ? 2 : 6);
+    ctx.stroke();
+  }
+}
+
+function drawFigure(x, ground, pose) {
+  const u = 16;
+  const sq = Math.max(-0.45, Math.min(0.45, pose.sq || 0));
+  ctx.save();
+  ctx.translate(x + (pose.dx || 0) * u, ground);
+  ctx.rotate(pose.rot || 0);
+  ctx.translate(0, (pose.dy || 0) * u);
+  const bodyW = 78 * (1 + sq);
+  const bodyH = 132 * (1 - sq);
+  ctx.fillStyle = "rgba(28,36,48,0.18)";
+  ctx.beginPath();
+  ctx.ellipse(0, 8, 46 * (1 - Math.min(0.4, Math.abs(pose.dy || 0) * 0.08)), 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#2c3a4a";
+  const arm = (side, angle) => {
+    const len = 58;
+    const dir = side < 0 ? Math.PI - angle : angle;
+    ctx.beginPath();
+    ctx.moveTo(side * bodyW * 0.42, -bodyH * 0.55);
+    ctx.lineTo(side * bodyW * 0.42 + Math.cos(dir) * len, -bodyH * 0.55 - Math.sin(dir) * len);
+    ctx.stroke();
+  };
+  ctx.lineWidth = 10;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#2c3a4a";
+  arm(-1, pose.aL || 0);
+  arm(1, pose.aR || 0);
+  ctx.fillRect(-bodyW / 2, -bodyH, bodyW, bodyH * 0.72);
+  ctx.beginPath();
+  ctx.arc(0, -bodyH - 8, 36 * (1 + sq * 0.3), 0, Math.PI * 2);
+  ctx.fill();
+  if (pose.blush) {
+    ctx.fillStyle = `rgba(212,106,122,${0.15 + pose.blush * 0.45})`;
+    ctx.beginPath();
+    ctx.arc(-16, -bodyH + 4, 8, 0, Math.PI * 2);
+    ctx.arc(16, -bodyH + 4, 8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  const pair = eyesOf(pose);
+  drawEye(-14, -bodyH - 10, pair[0], pose.lookX || 0, pose.squint || 0);
+  drawEye(14, -bodyH - 10, pair[1], pose.lookX || 0, pose.squint || 0);
+  ctx.save();
+  ctx.translate(0, -bodyH + 8);
+  drawMouth(pose.mouth);
+  ctx.restore();
+  ctx.restore();
+}
+
+window.renderFrame = function (seconds) {
+  const t = P.onTwos(Math.max(0, seconds));
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#f4efe6";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = "#d9d0c2";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(80, 560);
+  ctx.lineTo(1200, 560);
+  ctx.stroke();
+  drawFigure(430, 560, P.emotions(t, KEYS));
+  const dance = DANCES[Math.floor(t / 1.6) % DANCES.length];
+  drawFigure(860, 560, Object.assign({}, P.feel("neutral", t), P.move(dance, t)));
+};
+window.renderFrame(0);
+</script>

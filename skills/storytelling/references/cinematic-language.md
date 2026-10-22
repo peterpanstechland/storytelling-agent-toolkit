@@ -3,7 +3,8 @@
 Use these recipes to choose a visual treatment with a reason. They are
 production guidance, **not built-in named effects in `video/run render`**. Specify
 what the viewer should understand, then the shot, technique and available tool.
-Export an actual preview before promising the effect.
+Export an actual preview before promising the effect. For a film authored in
+code, start from [code video](code-video.md) instead of inventing a style name.
 
 ## Shot and rhythm grammar
 
