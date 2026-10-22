@@ -18,6 +18,7 @@ Read only the relevant route:
 - Adapt one story for different audiences/channels: [adaptation](references/adaptation.md).
 - Footage, narration, authorized voice cloning, subtitles and audio: [video production](references/video-production.md).
 - Shot language, cinematic openings, motion graphics, VFX and color: [cinematic language](references/cinematic-language.md).
+- A film built in code, a motion-graphics style, karaoke word timing or a beat-locked character: [code video](references/code-video.md). Surveyed repositories and what was copied: [fx sources](references/fx-sources.md).
 - Upload, draft, publish and verify: [publishing](references/publishing.md).
 - Structured briefs and local platform bundles: [brief contract](references/brief-contract.md).
 
@@ -37,7 +38,8 @@ Commands below are relative to this skill folder. Run `--help` before an unfamil
 - `python scripts/story.py validate <brief.json> [--check-files]`: check structure and evidence/identity references; it cannot certify factual truth.
 - `python scripts/story.py pack <brief.json> --output <new-directory> [--copy-assets]`: prepare selected channel files. Master text is marked as needing adaptation unless the agent authored a channel variant.
 - `python scripts/render_cards.py <cards.json> --output <new-directory>`: render actual PNG cards with measured text layout; requires Pillow and a suitable font.
-- `node scripts/capture_web.mjs ...`: optional local-page screenshots, long-image slices and deterministic web-animation export. See its `--help` and [web capture](references/web-capture.md).
+- `node scripts/capture_web.mjs ...`: optional local-page screenshots, long-image slices and deterministic web-animation export. See its `--help` and [web capture](references/web-capture.md). `templates/character-beat.html` is a beat-locked character page.
+- `python codevideo/styles.py find <query>`: search vendored code-film and motion-graphics briefs. `python codevideo/karaoke.py <lyrics.json> --output <new-directory>` writes karaoke cues and an ASS file from timings you supply. `python codevideo/looks.py <image> --output <new.png>` grades a title card. `python codevideo/catalog.py` filters the external code-video index. Details and licences: [code video](references/code-video.md).
 - `python video/run doctor`: inspect video capabilities. Use `inspect`, `transcribe`, `render`, `narrate`, `mix` as described in the video guide. Models are selected externally, not included.
 - `python publishing/wechat.py --help`: official-account API adapter. Local preview, remote media upload, draft creation and publication are separate operations.
 

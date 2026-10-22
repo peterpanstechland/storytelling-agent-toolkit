@@ -24,4 +24,6 @@ node scripts/capture_web.mjs --input templates/motion-scene.html --output /tmp/m
 
 The included Canvas scene is a real reusable concept animation: particles converge, an observation/connection/understanding chain appears, and a title enters. Edit its configuration and geometry for the story. It is not tracking, simulation evidence or Gaussian reconstruction. MP4/GIF exports are silent; mix narration and music separately. GIF has no audio. Test a short low-resolution export before a long render.
 
+`templates/character-beat.html` is a second page on the same contract: emotion keys and dances from [code video](code-video.md). Style briefs for other code-native films are listed there too.
+
 For overlays on actual footage, choose screen-space tracking or calibrated scene coordinates, use alpha or explicit compositing, and match timing/occlusion. A full-frame generated scene cannot stand in for a tracked overlay. See the cinematic/video guides for method selection and fidelity checks.

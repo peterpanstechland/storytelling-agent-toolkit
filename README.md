@@ -88,6 +88,18 @@ node skills/storytelling/scripts/capture_web.mjs \
 
 [网页渲染说明](skills/storytelling/references/web-capture.md)
 
+## 代码成片
+
+51 个 Lemo-Opuscar 风格说明、15 个动态图形提示词、卡拉 OK 词级时间轴，以及一套 31 个表情的节拍表演，已经按许可收进 skill。游戏引擎、无许可证提示词和 Zlib 着色器只保留链接。检索与导出：
+
+```bash
+python skills/storytelling/codevideo/styles.py find 水墨
+python skills/storytelling/codevideo/karaoke.py skills/storytelling/codevideo/examples/lyrics.json --output /tmp/lyrics-v1
+python skills/storytelling/codevideo/catalog.py --category explainer --tag canvas
+```
+
+角色页是 `skills/storytelling/templates/character-beat.html`，仍用上面的网页渲染导出。标题卡的颗粒、光晕和暗角是本仓库原创的 Pillow 处理，不是外部着色器的拷贝。来源与取舍见 [fx-sources](skills/storytelling/references/fx-sources.md) 和 [代码成片说明](skills/storytelling/references/code-video.md)。
+
 ## 发布与账号
 
 公众号工具默认只预览，远程操作必须明确选择：

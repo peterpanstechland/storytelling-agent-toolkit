@@ -39,7 +39,9 @@ authors the story and channel variants, and selects the user's source material.
   narration assembly, ambience/music mixing and ducking.
 - Deterministic local web-artwork capture to PNG slices, MP4 or GIF. A working
   Canvas motion template is included; Three.js/GSAP scenes can implement the
-  same `window.renderFrame(seconds)` contract.
+  same `window.renderFrame(seconds)` contract. Code-film style briefs, karaoke
+  timing and a beat-locked character page are documented in the code-video guide.
+
 - WeChat Official Account API adapter: local preview, body/cover uploads,
   draft creation/readback, explicit publication submission and status checks.
 - Browser/connector handoff guides for Xiaohongshu, CSDN, AWS Builder Center, X,

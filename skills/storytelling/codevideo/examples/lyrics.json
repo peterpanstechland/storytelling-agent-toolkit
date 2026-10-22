@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "title": "Fictional booth light",
+  "note": "Original example written for this tool. It is not a published song.",
+  "lines": [
+    {
+      "text": "The booth light finds the question",
+      "words": [
+        {"w": "The", "start": 0.4, "end": 0.62},
+        {"w": "booth", "start": 0.62, "end": 0.98},
+        {"w": "light", "start": 1.02, "end": 1.4},
+        {"w": "finds", "start": 1.4, "end": 1.78},
+        {"w": "the", "start": 1.78, "end": 1.96},
+        {"w": "question", "start": 1.96, "end": 2.7, "syl": [[1.96, 2.3], [2.3, 2.7]]}
+      ]
+    },
+    {
+      "text": "灯亮了，故事才开始",
+      "words": [
+        {"w": "灯亮了，", "start": 3.2, "end": 3.9},
+        {"w": "故事", "start": 3.9, "end": 4.4},
+        {"w": "才开始", "start": 4.4, "end": 5.2}
+      ]
+    }
+  ]
+}
