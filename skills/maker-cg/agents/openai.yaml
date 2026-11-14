@@ -1,0 +1,4 @@
+interface:
+  display_name: "通用实拍CG"
+  short_description: "分析实拍场景，建立可见几何与相机、跟踪遮挡，用Blender合成可编辑CG"
+  default_prompt: "使用 $maker-cg 查看我的实拍素材，根据当前创客项目制作贴合场景的CG短样，并保存可编辑的Blender工程。"

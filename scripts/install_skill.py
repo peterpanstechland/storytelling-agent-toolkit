@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 import shutil
 
-SKILLS=('storytelling','pxl')
+SKILLS=('storytelling','pxl','maker-cg')
 
 def copy_skill(name, target_root, parser):
     source=Path(__file__).resolve().parents[1]/'skills'/name
@@ -13,7 +13,9 @@ def copy_skill(name, target_root, parser):
     if target.is_relative_to(source):parser.error('Destination must be outside the source skill')
     target.parent.mkdir(parents=True,exist_ok=True)
     shutil.copytree(source,target,ignore=shutil.ignore_patterns(
-        '__pycache__','*.pyc','.venv','node_modules','.env*','receipts','outputs','media','models','checkpoints','out','dist','*.tgz','._vs_*'))
+        '__pycache__','*.pyc','.venv','.runtime','node_modules','.env*',
+        'runtime.local.json','*.private.json','optix7cache.db*',
+        'receipts','outputs','media','models','checkpoints','out','dist','*.tgz','._vs_*'))
     print(target/'SKILL.md')
 
 def main():

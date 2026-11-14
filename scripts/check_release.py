@@ -33,7 +33,7 @@ def findings(root, files):
         if any(part in FORBIDDEN_PARTS for part in rel.parts):errors.append((str(rel),'runtime/media directory'))
         if p.name.startswith('.env') or re.search(r'(?:credentials|session|cookies|token-store)',p.name,re.I):
             errors.append((str(rel),'credential/session filename'))
-        pxl_media = str(rel).startswith(PXL_MEDIA_PREFIX) and p.suffix.lower() in PXL_MEDIA_EXTENSIONS
+        pxl_media = rel.as_posix().startswith(PXL_MEDIA_PREFIX) and p.suffix.lower() in PXL_MEDIA_EXTENSIONS
         if pxl_media:
             if p.stat().st_size>PXL_MEDIA_MAX:errors.append((str(rel),'pxl example art exceeds size budget'))
             continue
