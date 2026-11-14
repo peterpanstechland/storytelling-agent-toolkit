@@ -106,3 +106,18 @@ IndexTTS code, IndexTTS-2.5 weights, w2v-bert, BigVGAN, CAMPPlus and their depen
 retain their separate licenses and attribution requirements. Keep their notices
 with the private production environment and follow their output/distribution terms.
 The toolkit MIT license applies only to the adapter, not to those engines or voices.
+
+## Real-footage CG adapter
+
+`skills/maker-cg/` contains original workflow, geometry, tracking and compositing
+code under this repository's MIT license. It calls separately installed OpenCV,
+NumPy, Pillow, Blender and FFmpeg; their licenses remain with those runtimes.
+Optional Depth Anything 3 Small, SAM 2.1 and LaMa code/models retain their upstream
+licenses (Apache-2.0 for the selected components). The optional Depth Anything V2
+Small HF model is Apache-2.0. LaMa TorchScript distribution follows IOPaint's
+published model source and checksums. Public provenance is recorded in
+`config/cg-upstreams.lock.json`; no model weights or third-party engine source ship
+with this addition. Blender is invoked as an external application, not relicensed
+by this repository. No AlexSolve code, paid skill package, reference video or
+course material is included. Research links describe observations, not endorsement
+or a claim of equivalent performance on every shot.

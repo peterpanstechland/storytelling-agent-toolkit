@@ -16,6 +16,7 @@
 - **自动剪辑（autocut）**：按项目管理多设备素材（活动/商单/Maker 项目/Vlog），设备识别、拍摄清单与缺镜头提醒、镜头切分与画面理解（可选云端或本地模型，也可纯离线）、带风格的整片粗剪；运镜、卡点、特效、自动音效、**Insta360 X5 360° 自动运镜**，输出 MP4 预览或**剪映草稿**。新增：ff-tracking 风格追踪框 HUD / 镜头质感 / 终端插卡（MIT 移植）、13 个 GL Transitions 转场、胶片模拟 / 变形拉丝光 / VHS Pro 与「高级感」风格（`premium_film`、`premium_maker`）；开源特效来源与许可结论见 [fx-sources](skills/storytelling/references/fx-sources.md)。可与上面的 `render` / `transcribe` / `narrate` 互相导入导出。
 - **电影语言**：甩镜、突切、急推、节奏剪辑、对称构图、拖影、虚拟摄影机；八类片头、动态文字、VFX、LUT 与音画配合的制作指南。
 - **程序化动效**：可复用 Canvas 动效模板；确定性网页逐帧渲染，可接 Three.js／SVG／GSAP 场景，导出 MP4 或 GIF。
+- **实拍 CG**：独立 [maker-cg Skill](skills/maker-cg/SKILL.md)，由 Agent 看素材后设计效果，接入镜头匹配、可见几何、前景蒙版、补景和 Blender/Cycles 合成；保存可编辑工程与前后对照。基础工具与可选 DA3 / SAM 2.1 / LaMa 模型分开配置，不包含私人素材和权重。
 - **发布助手**：把一个故事改编成不同平台的文案、媒体顺序和发布包；公众号提供实际 API 适配器，其他平台提供官方编辑器／连接器工作流。
 - **像素画**：`skills/pxl` 用 `.px.js` 画出 PNG、精灵表和 GIF。图卡、文章配图、片头和短插入可以直接用这些文件。
 
@@ -36,9 +37,12 @@ git clone https://github.com/peterpanstechland/storytelling-agent-toolkit.git
 cd storytelling-agent-toolkit
 python3 scripts/install_skill.py --target ~/.codex/skills
 python3 scripts/install_skill.py --skill pxl --target ~/.codex/skills
+python3 scripts/install_skill.py --skill maker-cg --target ~/.codex/skills
 ```
 
-默认只复制 `skills/storytelling/`。`--skill pxl` 复制像素画 skill，`--skill all` 两个都复制。安装器不修改全局模型、账号或其他 skill；目标已存在时停止。其他 Agent 选择其文档规定的目录，或直接读取对应的 `SKILL.md`。`agents/openai.yaml` 是 storytelling 的可选 UI 元数据，不是运行依赖。
+默认只复制 `skills/storytelling/`。`--skill pxl` 复制像素画 skill，`--skill maker-cg` 复制实拍 CG skill，`--skill all` 复制全部三个。安装器不修改全局模型、账号或其他 skill，也不复制本机运行配置；目标已存在时停止。其他 Agent 选择其文档规定的目录，或直接读取对应的 `SKILL.md`。`agents/openai.yaml` 是可选 UI 元数据，不是运行依赖。
+
+安装后可对 Agent 说：“使用 $maker-cg 查看我的实拍素材，设计贴合场景的 CG，先做短样，再保存 Blender 工程。”新机器按 [CG 运行环境](skills/maker-cg/references/runtime-setup.md) 配置并执行 `python skills/maker-cg/scripts/cg.py doctor`。当前网格主要来自参考视图的可见表面；手部配饰、自然生长、大幅绕拍等需各自实现与验收，不能由一个样片推断全场景效果。方法与已验证边界见 [参考研究](docs/cg-reference-research.md)。
 
 ## 五分钟本地试跑
 

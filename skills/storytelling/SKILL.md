@@ -21,6 +21,7 @@ Read only the relevant route:
 - Local expressive voice generation and ASR-backed checking: [voice cloning](references/voice-cloning.md).
 - Color-only changes or replacement of restricted footage in a platform edition: [video revisions](references/video-revisions.md).
 - Shot language, cinematic openings, motion graphics, VFX and color: [cinematic language](references/cinematic-language.md).
+- Scene-aware CG in real footage: the sibling [maker-cg skill](../maker-cg/SKILL.md) inspects the shot, matches cameras, builds visible geometry and foreground masks, then renders editable Blender composites. Optional model runtimes are configured separately; use ordinary video tools for cuts and subtitles.
 - A film built in code, a motion-graphics style, karaoke word timing or a beat-locked character: [code video](references/code-video.md). Surveyed repositories and what was copied: [fx sources](references/fx-sources.md).
 - Upload, draft, publish and verify: [publishing](references/publishing.md).
 - Structured briefs and local platform bundles: [brief contract](references/brief-contract.md).

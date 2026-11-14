@@ -18,10 +18,21 @@ browser and account tools.
 ```bash
 python3 scripts/install_skill.py --target ~/.codex/skills
 python3 scripts/install_skill.py --skill pxl --target ~/.codex/skills
+python3 scripts/install_skill.py --skill maker-cg --target ~/.codex/skills
 ```
 
 The installer copies the selected skill only. The default is storytelling.
-`--skill all` copies both. It stops when the destination already exists.
+`--skill all` copies all three skills. It stops when the destination already exists
+and excludes machine-specific runtime configuration.
+
+[maker-cg](../skills/maker-cg/SKILL.md) adds shot-specific real-footage CG:
+camera matching, visible-surface geometry, foreground masks, clean plates and
+editable Blender/Cycles composites. The agent inspects footage and authors the
+effect; optional DA3, SAM 2.1 and LaMa runtimes are installed separately.
+See [runtime setup](../skills/maker-cg/references/runtime-setup.md) and
+[reference research and limits](cg-reference-research.md). Reference-view geometry
+does not establish unseen surfaces or metric scale; hand rigs, organic growth and
+wide camera orbits require their own implementation and validation.
 
 ## Run locally
 
